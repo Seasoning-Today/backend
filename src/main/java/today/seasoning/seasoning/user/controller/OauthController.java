@@ -15,33 +15,32 @@ import today.seasoning.seasoning.user.service.kakao.KakaoLoginService;
 @RequiredArgsConstructor
 public class OauthController {
 
-	private final KakaoLoginService kakaoLoginService;
+    private final KakaoLoginService kakaoLoginService;
 
-	@Value("${KAKAO_LOGIN_URL}")
-	private String kakaoLoginUri;
+    @Value("${KAKAO_LOGIN_URL}")
+    private String kakaoLoginUri;
 
-	@Value("${MAIN_PAGE_URL}")
-	private String mainPageUrl;
+    @Value("${MAIN_PAGE_URL}")
+    private String mainPageUrl;
 
-	@Value("${MY_PAGE_URL}")
-	private String myPageUrl;
+    @Value("${MY_PAGE_URL}")
+    private String myPageUrl;
 
-	@GetMapping("/kakao/login")
-	public void redirectToKakaoLogin(HttpServletResponse response) throws IOException {
-		response.sendRedirect(kakaoLoginUri);
-	}
+    @GetMapping("/kakao/login")
+    public void redirectToKakaoLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect(kakaoLoginUri);
+    }
 
-	@GetMapping("/oauth/kakao/login")
-	public void kakaoLogin(@RequestParam("code") String authCode, HttpServletResponse response)
-		throws IOException {
+    @GetMapping("/oauth/kakao/login")
+    public void kakaoLogin(@RequestParam("code") String authCode, HttpServletResponse response) throws IOException {
 
-		LoginResultDto loginResult = kakaoLoginService.handleKakaoLogin(authCode);
-		boolean isNewUser = loginResult.isNewUser();
+        LoginResultDto loginResultDto = kakaoLoginService.handleKakaoLogin(authCode);
+        boolean isNewUser = loginResultDto.isNewUser();
 
-		Cookie authorization = new Cookie("Authorization", loginResult.getToken());
-		response.addCookie(authorization);
+        Cookie authorization = new Cookie("Authorization", loginResultDto.getToken());
+        response.addCookie(authorization);
 
-		String redirectUrl = isNewUser? myPageUrl : mainPageUrl;
-		response.sendRedirect(redirectUrl);
-	}
+        String redirectUrl = isNewUser ? myPageUrl : mainPageUrl;
+        response.sendRedirect(redirectUrl);
+    }
 }

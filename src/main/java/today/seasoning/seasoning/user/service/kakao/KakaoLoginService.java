@@ -1,6 +1,8 @@
 package today.seasoning.seasoning.user.service.kakao;
 
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,47 +19,49 @@ import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
 @RequiredArgsConstructor
 public class KakaoLoginService {
 
-	private static final LoginType KAKAO_LOGIN_TYPE = LoginType.KAKAO;
+    private static final LoginType KAKAO_LOGIN_TYPE = LoginType.KAKAO;
 
-	private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
-	private final FetchKakaoUserProfile fetchKakaoUserProfile;
-	private final UserRepository userRepository;
-	private final JwtUtil jwtUtil;
+    private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
+    private final FetchKakaoUserProfile fetchKakaoUserProfile;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-	@Transactional
-	public LoginResultDto handleKakaoLogin(String authorizationCode) {
-		String accessToken = exchangeKakaoAccessToken(authorizationCode);
-		SocialUserProfileDto userProfile = fetchKakaoUserProfile(accessToken);
+    @Transactional
+    public LoginResultDto handleKakaoLogin(String authorizationCode) {
+        // 액세스 토큰 교환
+        String accessToken = exchangeKakaoAccessToken.doExchange(authorizationCode);
 
-		Optional<User> foundUser = userRepository.find(userProfile.getEmail(), KAKAO_LOGIN_TYPE);
-		boolean isNewUser = foundUser.isEmpty();
+        // 카카오 프로필 조회
+        SocialUserProfileDto userProfile = fetchKakaoUserProfile.doFetch(accessToken);
 
-		User user = foundUser.orElseGet(() -> registerUser(userProfile));
+        // 계정 조회 (신규 유저인 경우 가입 처리)
+        UserInfo userInfo = registerUserIfNeeded(userProfile);
 
-		String token = createToken(user);
+        // 토큰 발급
+        String token = createToken(userInfo.getUser());
 
-		return new LoginResultDto(token, isNewUser);
-	}
+        return new LoginResultDto(token, userInfo.isFirstLogin());
+    }
 
-	private String exchangeKakaoAccessToken(String authorizationCode) {
-		return exchangeKakaoAccessToken.doExchange(authorizationCode);
-	}
+    private UserInfo registerUserIfNeeded(SocialUserProfileDto userProfile) {
+        Optional<User> foundUser = userRepository.find(userProfile.getEmail(), KAKAO_LOGIN_TYPE);
 
-	private SocialUserProfileDto fetchKakaoUserProfile(String accessToken) {
-		return fetchKakaoUserProfile.doFetch(accessToken);
-	}
+        if (foundUser.isEmpty()) {
+            User user = userRepository.save(userProfile.toEntity(LoginType.KAKAO));
+            return new UserInfo(user, true);
+        }
+        return new UserInfo(foundUser.get(), false);
+    }
 
-	private String createToken(User user) {
-		return jwtUtil.createToken(user.getId(), KAKAO_LOGIN_TYPE);
-	}
+    private String createToken(User user) {
+        return jwtUtil.createToken(user.getId(), KAKAO_LOGIN_TYPE);
+    }
 
-	private User registerUser(SocialUserProfileDto userProfile) {
-		User user = new User(
-			userProfile.getNickname(),
-			userProfile.getProfileImageUrl(),
-			userProfile.getEmail(),
-			KAKAO_LOGIN_TYPE);
+    @Getter
+    @AllArgsConstructor
+    private static class UserInfo {
 
-		return userRepository.save(user);
-	}
+        private User user;
+        private boolean firstLogin;
+    }
 }
