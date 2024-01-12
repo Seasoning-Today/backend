@@ -1,56 +1,107 @@
 package today.seasoning.seasoning.common.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import today.seasoning.seasoning.common.config.TokenProperties;
 import today.seasoning.seasoning.common.enums.LoginType;
+import today.seasoning.seasoning.common.token.domain.TokenInfo;
 
 @Component
 public class JwtUtil {
 
-	@Value("${JWT_SECRET_KEY}")
-	private String jwtSecretKey;
+    private static TokenProperties tokenProperties;
+    private static SecretKey secretKey;
 
-	@Value("${JWT_EXPIRATION_TIME}")
-	private Long expirationTime;
+    @Autowired
+    private JwtUtil(TokenProperties tokenProperties) {
+        JwtUtil.tokenProperties = tokenProperties;
+        JwtUtil.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenProperties.getSecretKey()));
+    }
 
-	public String createToken(Long id, LoginType loginType) {
-		Map<String, String> claims = new HashMap<>();
-		claims.put("id", String.valueOf(id));
-		claims.put("loginType", loginType.name());
+    // 새로운 액세스 토큰 및 리프레시 토큰 생성
+    public static TokenInfo createToken(long userId, LoginType loginType) {
+        String accessToken = generateAccessToken(userId, loginType);
+        String refreshToken = generateRefreshToken(loginType);
+        return new TokenInfo(accessToken, refreshToken);
+    }
 
-		SecretKey secretKey = createSecretKey();
+    // 리프레시 토큰을 통한 액세스 토큰 및 리프레시 토큰 재발급
+    // 리프레시 토큰 탈취 피해를 줄이기 위해 리프레시 토큰도 재생성 (만료시간은 유지)
+    public static TokenInfo refreshToken(long userId, String refreshToken) {
+        Claims claims = getClaims(refreshToken);
+        LoginType loginType = LoginType.valueOf(claims.get("loginType", String.class));
+        Date refreshTokenExpirationDate = claims.getExpiration();
 
-		return Jwts.builder()
-			.claims(claims)
-			.issuedAt(new Date())
-			.expiration(new Date(System.currentTimeMillis() + expirationTime))
-			.signWith(secretKey)
-			.compact();
-	}
+        String accessToken = generateAccessToken(userId, loginType);
+        String newRefreshToken = regenerateRefreshToken(loginType, refreshTokenExpirationDate.getTime());
+        return new TokenInfo(accessToken, newRefreshToken);
+    }
 
-	public Long getUserId(String token) {
-		return Long.parseLong(getClaims(token).get("id", String.class));
-	}
+    // 액세스 토큰 생성
+    private static String generateAccessToken(Long userId, LoginType loginType) {
+        return generateToken(userId, loginType,
+            System.currentTimeMillis() + tokenProperties.getAccessTokenExpirationTimeMillis());
+    }
 
-	public LoginType getLoginType(String token) {
-		return LoginType.valueOf(getClaims(token).get("loginType", String.class));
-	}
+    // 리프레시 토큰 생성
+    private static String generateRefreshToken(LoginType loginType) {
+        return generateToken(null, loginType,
+            System.currentTimeMillis() + tokenProperties.getRefreshTokenExpirationTimeMillis());
+    }
 
-	private Claims getClaims(String token) {
-		return Jwts.parser().verifyWith(createSecretKey()).build().parseSignedClaims(token)
-			.getPayload();
-	}
+    // 리프레시 토큰 재발급 (만료시간은 유지)
+    private static String regenerateRefreshToken(LoginType loginType, long expirationTimeMillis) {
+        return generateToken(null, loginType, expirationTimeMillis);
+    }
 
-	private SecretKey createSecretKey() {
-		byte[] keyBytes = Decoders.BASE64.decode(jwtSecretKey);
-		return Keys.hmacShaKeyFor(keyBytes);
-	}
+    private static String generateToken(Long userId, LoginType loginType, long expirationTimeMillis) {
+        ClaimsBuilder claimsBuilder = Jwts.claims();
+        claimsBuilder.add("loginType", loginType.name());
+
+        // 리프레시 토큰은 subject 설정 X
+        if (userId != null) {
+            claimsBuilder.subject(TsidUtil.toString(userId));
+        }
+
+        return Jwts.builder()
+            .claims(claimsBuilder.build())
+            .issuedAt(new Date())
+            .expiration(new Date(expirationTimeMillis))
+            .signWith(secretKey, SIG.HS256)
+            .compact();
+    }
+
+    private static Claims getClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
+
+    public static long getUserId(String token) {
+        return Long.parseLong(getClaims(token).getSubject());
+    }
+
+    public static LoginType getLoginType(String token) {
+        return LoginType.valueOf((getClaims(token).get("loginType", String.class)));
+    }
+
+    // 토큰 유효성 검증 메서드
+    public static boolean validate(String token) {
+        try {
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 }
