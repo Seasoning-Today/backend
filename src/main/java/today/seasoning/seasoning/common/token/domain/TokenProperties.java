@@ -1,4 +1,4 @@
-package today.seasoning.seasoning.common.config;
+package today.seasoning.seasoning.common.token.domain;
 
 import lombok.Getter;
 import lombok.Setter;

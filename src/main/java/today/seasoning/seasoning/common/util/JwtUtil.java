@@ -10,7 +10,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import today.seasoning.seasoning.common.config.TokenProperties;
+import today.seasoning.seasoning.common.token.domain.TokenProperties;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
 

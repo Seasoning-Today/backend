@@ -6,7 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import today.seasoning.seasoning.common.config.TokenProperties;
+import today.seasoning.seasoning.common.token.domain.TokenProperties;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
 import today.seasoning.seasoning.common.util.JwtUtil;
