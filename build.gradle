@@ -31,6 +31,9 @@ dependencies {
 
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    implementation platform('software.amazon.awssdk:bom:2.23.0')
+    implementation 'software.amazon.awssdk:sns'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
