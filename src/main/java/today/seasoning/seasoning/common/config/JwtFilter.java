@@ -44,7 +44,6 @@ public class JwtFilter extends OncePerRequestFilter {
         if (token == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Missing Token");
-            filterChain.doFilter(request, response);
             return;
         }
 
@@ -84,13 +83,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        List<String> allowedPath = Arrays.asList(
-            "/kakao/login",
+        List<String> allowedPaths = Arrays.asList(
             "/oauth/kakao/login",
-            "/favicon.ico");
+            "/favicon.ico",
+            "/refresh");
 
         String path = request.getRequestURI();
 
-        return allowedPath.stream().anyMatch(path::equals);
+        return allowedPaths.stream().anyMatch(path::equals);
     }
 }
