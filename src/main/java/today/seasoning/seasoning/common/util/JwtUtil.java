@@ -88,7 +88,7 @@ public class JwtUtil {
     }
 
     public static long getUserId(String token) {
-        return Long.parseLong(getClaims(token).getSubject());
+        return TsidUtil.toLong(getClaims(token).getSubject());
     }
 
     public static LoginType getLoginType(String token) {
