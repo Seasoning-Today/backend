@@ -17,7 +17,7 @@ public class RefreshTokenController {
 
     private final RefreshTokenService refreshTokenService;
 
-    @PostMapping("/login/refresh-token")
+    @PostMapping("/refresh")
     public ResponseEntity<TokenInfo> refreshToken(@Valid @RequestBody RefreshTokenDto dto) {
         TokenInfo tokenInfo = refreshTokenService.refresh(dto.getRefreshToken());
         return ResponseEntity.ok(tokenInfo);
