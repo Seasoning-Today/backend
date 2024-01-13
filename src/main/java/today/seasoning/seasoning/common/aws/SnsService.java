@@ -1,0 +1,32 @@
+package today.seasoning.seasoning.common.aws;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class SnsService {
+
+    @Value("${cloud.aws.sns.arn}")
+    private String topicArn;
+
+    private final SnsClient snsClient;
+
+    public void publish(String message) {
+        PublishRequest request = PublishRequest.builder()
+            .topicArn(topicArn)
+            .messageGroupId("groupId")
+            .message(message)
+            .build();
+
+        PublishResponse response = snsClient.publish(request);
+        log.info("SNS Message published - MessageId: {}", response.messageId());
+    }
+
+}
