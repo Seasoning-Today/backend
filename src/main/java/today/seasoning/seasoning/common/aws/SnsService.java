@@ -22,7 +22,6 @@ public class SnsService {
         try {
             PublishRequest request = PublishRequest.builder()
                 .topicArn(topicArn)
-                .messageGroupId("groupId")
                 .message(message)
                 .build();
 
