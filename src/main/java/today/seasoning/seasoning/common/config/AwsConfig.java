@@ -24,6 +24,9 @@ public class AwsConfig {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    @Value("${cloud.aws.sns.region}")
+    private String snsRegion;
+
     @Bean
     public AmazonS3Client amazonS3Client() {
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -41,7 +44,7 @@ public class AwsConfig {
 
         return SnsClient.builder()
             .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-            .region(Region.of(region))
+            .region(Region.of(snsRegion))
             .build();
     }
 }
