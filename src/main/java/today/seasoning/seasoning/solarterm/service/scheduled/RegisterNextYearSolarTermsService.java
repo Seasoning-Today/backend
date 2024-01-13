@@ -3,6 +3,8 @@ package today.seasoning.seasoning.solarterm.service.scheduled;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,7 +41,6 @@ public class RegisterNextYearSolarTermsService {
     private final SnsService snsService;
     private final SolarTermRepository solarTermRepository;
 
-
     @Scheduled(cron = "0 0 0 1 12 *")
     public void findAndRegisterNextYearSolarTerms() {
         String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
@@ -57,11 +58,14 @@ public class RegisterNextYearSolarTermsService {
                 solarTermRepository.save(solarTerm);
             }
 
-            snsService.publish(nextYear + "년 절기 등록 완료");
+            snsService.publish("[시즈닝] " + nextYear + "년 절기 등록 완료");
             log.info("{}년 절기 등록 완료", nextYear);
         } catch (Exception e) {
-            snsService.publish(nextYear + "년 절기 등록 실패 : " + e.getMessage());
-            log.error("{}년 절기 등록 실패 : {}", nextYear, e.getMessage());
+            snsService.publish("[시즈닝] ERROR - " + nextYear + "년 절기 등록 실패");
+
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            log.error("{}년 절기 등록 실패 : {}", nextYear, stringWriter);
         }
     }
 
