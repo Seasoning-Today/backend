@@ -19,6 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import today.seasoning.seasoning.common.aws.SnsService;
+import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
 
@@ -33,7 +35,7 @@ import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RegisterNextYearSolarTermsService {
+public class FindAndRegisterSolarTermsService {
 
     @Value("${OPEN_API_KEY}")
     private String API_KEY;
@@ -43,14 +45,25 @@ public class RegisterNextYearSolarTermsService {
 
     @Scheduled(cron = "0 0 0 1 12 *")
     public void findAndRegisterNextYearSolarTerms() {
-        String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
+        int nextYear = LocalDate.now().getYear() + 1;
+
+        try {
+            findAndRegisterSolarTermsOf(nextYear);
+            snsService.publish("[시즈닝] " + nextYear + "년 절기 등록 완료");
+        } catch (Exception e) {
+            snsService.publish("[시즈닝] ERROR - " + nextYear + "년 절기 등록 실패");
+        }
+    }
+
+    public void findAndRegisterSolarTermsOf(int year) {
+        String stringYear = String.valueOf(year);
         List<String> months = List.of("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
 
         try {
             List<LocalDate> nextYearSolarTermDates = new ArrayList<>(24);
 
             for (String month : months) {
-                findAndAddSolarTermDate(nextYear, month, nextYearSolarTermDates);
+                findAndAddSolarTermDate(stringYear, month, nextYearSolarTermDates);
             }
 
             for (int i = 0; i < 24; i++) {
@@ -58,14 +71,13 @@ public class RegisterNextYearSolarTermsService {
                 solarTermRepository.save(solarTerm);
             }
 
-            snsService.publish("[시즈닝] " + nextYear + "년 절기 등록 완료");
-            log.info("{}년 절기 등록 완료", nextYear);
+            log.info("{}년 절기 등록 완료", stringYear);
         } catch (Exception e) {
-            snsService.publish("[시즈닝] ERROR - " + nextYear + "년 절기 등록 실패");
-
             StringWriter stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
-            log.error("{}년 절기 등록 실패 : {}", nextYear, stringWriter);
+            log.error("{}년 절기 등록 실패 : {}", stringYear, stringWriter);
+
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, stringYear + "년 절기 등록 실패");
         }
     }
 
