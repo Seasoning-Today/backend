@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import today.seasoning.seasoning.solarterm.service.scheduled.FindAndRegisterSolarTermsService;
+import today.seasoning.seasoning.solarterm.service.FindAndRegisterSolarTermsService;
 
 @RestController
 @RequiredArgsConstructor

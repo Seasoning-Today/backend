@@ -1,4 +1,4 @@
-package today.seasoning.seasoning.solarterm.service.scheduled;
+package today.seasoning.seasoning.solarterm.service;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
