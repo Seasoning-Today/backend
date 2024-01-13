@@ -19,14 +19,18 @@ public class SnsService {
     private final SnsClient snsClient;
 
     public void publish(String message) {
-        PublishRequest request = PublishRequest.builder()
-            .topicArn(topicArn)
-            .messageGroupId("groupId")
-            .message(message)
-            .build();
+        try {
+            PublishRequest request = PublishRequest.builder()
+                .topicArn(topicArn)
+                .messageGroupId("groupId")
+                .message(message)
+                .build();
 
-        PublishResponse response = snsClient.publish(request);
-        log.info("SNS Message published - MessageId: {}", response.messageId());
+            PublishResponse response = snsClient.publish(request);
+            log.info("SNS Message Published - Id:{}", response.messageId());
+        } catch (Exception e) {
+            log.error("SNS Message Publish Failed : {}", e.getMessage());
+        }
     }
 
 }
