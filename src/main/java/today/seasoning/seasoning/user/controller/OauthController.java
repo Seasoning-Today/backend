@@ -15,7 +15,7 @@ public class OauthController {
 
     private final KakaoLoginService kakaoLoginService;
 
-    @GetMapping("/oauth/kakao/login")
+    @GetMapping("/oauth/login/kakao")
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String authCode) {
         LoginResult loginResult = kakaoLoginService.handleKakaoLogin(authCode);
         LoginResponse loginResponse = LoginResponse.build(loginResult);

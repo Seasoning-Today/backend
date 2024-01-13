@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +37,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws IOException, ServletException {
+        throws IOException {
 
         String token = resolveTokenFromAuthorizationHeader(request);
+
         if (token == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Missing Token");
@@ -51,15 +51,16 @@ public class JwtFilter extends OncePerRequestFilter {
             UserPrincipal principal = createPrincipal(token);
 
             AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                principal, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                principal, null, List.of(new SimpleGrantedAuthority("ROLE_" + principal.getRole().name())));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             logger.error(e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid Token");
         }
-        filterChain.doFilter(request, response);
     }
 
     private String resolveTokenFromAuthorizationHeader(HttpServletRequest request) {
@@ -78,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
         User user = userRepository.findById(JwtUtil.getUserId(token))
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "회원 조회 실패"));
 
-        return UserPrincipal.builder(user);
+        return UserPrincipal.build(user);
     }
 
     @Override
