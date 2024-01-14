@@ -85,12 +85,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         List<String> allowedPaths = Arrays.asList(
-            "/oauth/kakao/login",
+            "/oauth/login",
             "/favicon.ico",
             "/refresh");
 
         String path = request.getRequestURI();
 
-        return allowedPaths.stream().anyMatch(path::equals);
+        return allowedPaths.stream().anyMatch(path::startsWith);
     }
 }
