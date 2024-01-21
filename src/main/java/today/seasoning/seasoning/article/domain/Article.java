@@ -3,6 +3,7 @@ package today.seasoning.seasoning.article.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
+import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.domain.User;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Article {
+public class Article extends BaseTimeEntity {
 
     @Id
     @Column(name = "article_id")
