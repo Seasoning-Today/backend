@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.common.aws.S3Service;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.exception.CustomException;
+import today.seasoning.seasoning.user.domain.AccountId;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileCommand;
@@ -21,7 +22,7 @@ public class UpdateUserProfileService {
 
 	private final S3Service s3Service;
 	private final UserRepository userRepository;
-	private final ValidateAccountIdUsability validateAccountIdUsability;
+	private final VerifyAccountIdService verifyAccountIdService;
 
 	@Transactional
 	public void doUpdate(UpdateUserProfileCommand command) {
@@ -40,14 +41,12 @@ public class UpdateUserProfileService {
 		userRepository.save(user);
 	}
 
-	private void validateNicknameAndAccountId(UpdateUserProfileCommand command,
-		String currentAccountId) {
-
+	private void validateNicknameAndAccountId(UpdateUserProfileCommand command, String currentAccountId) {
 		validateNicknameFormat(command.getNickname());
 
 		String newAccountId = command.getAccountId();
 		if (!newAccountId.equals(currentAccountId)) {
-			validateAccountIdUsability.doValidate(newAccountId);
+			verifyAccountIdService.verify(new AccountId(command.getAccountId()));
 		}
 	}
 
