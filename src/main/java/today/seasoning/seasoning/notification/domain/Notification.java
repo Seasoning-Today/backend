@@ -10,13 +10,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.domain.User;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class Notification {
+public class Notification extends BaseTimeEntity {
 
 	@Id
 	private Long id;
