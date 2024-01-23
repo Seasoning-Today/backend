@@ -5,12 +5,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class SolarTerm {
+public class SolarTerm extends BaseTimeEntity {
 
     @Id
     private Long id;

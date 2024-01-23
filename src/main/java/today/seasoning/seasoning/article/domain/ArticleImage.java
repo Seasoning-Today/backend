@@ -9,12 +9,13 @@ import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
+import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class ArticleImage {
+public class ArticleImage extends BaseTimeEntity {
 
 	@Id
 	private Long id;

@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.domain.User;
 
@@ -17,7 +18,7 @@ import today.seasoning.seasoning.user.domain.User;
 @NoArgsConstructor
 @Table(name = "article_like",
 	uniqueConstraints = {@UniqueConstraint(columnNames = {"article_id", "user_id"})})
-public class ArticleLike {
+public class ArticleLike extends BaseTimeEntity {
 
 	@Id
 	private Long id;
