@@ -2,20 +2,29 @@ package today.seasoning.seasoning.user.dto;
 
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
+import today.seasoning.seasoning.user.domain.AccountId;
+import today.seasoning.seasoning.user.domain.Nickname;
 
 @Getter
 public class UpdateUserProfileCommand {
 
-	private final Long userId;
-	private final String accountId;
-	private final String nickname;
+	private final long userId;
+	private final AccountId accountId;
+	private final Nickname nickname;
 	private final MultipartFile profileImage;
 
-	public UpdateUserProfileCommand(Long userId, String accountId, String nickname,
-		MultipartFile profileImage) {
+	public UpdateUserProfileCommand(long userId, String accountId, String nickname, MultipartFile profileImage) {
 		this.userId = userId;
-		this.accountId = accountId;
-		this.nickname = nickname;
+		this.accountId = new AccountId(accountId);
+		this.nickname = new Nickname(nickname);
 		this.profileImage = profileImage;
+	}
+
+	public String getAccountId() {
+		return accountId.get();
+	}
+
+	public String getNickname() {
+		return nickname.get();
 	}
 }

@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.common.UserPrincipal;
+import today.seasoning.seasoning.user.domain.AccountId;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileCommand;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileDto;
 import today.seasoning.seasoning.user.dto.UserProfileDto;
 import today.seasoning.seasoning.user.service.FindUserProfileService;
 import today.seasoning.seasoning.user.service.UpdateUserProfileService;
-import today.seasoning.seasoning.user.service.ValidateAccountIdUsability;
+import today.seasoning.seasoning.user.service.VerifyAccountIdService;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +26,8 @@ import today.seasoning.seasoning.user.service.ValidateAccountIdUsability;
 public class UserController {
 
 	private final FindUserProfileService findUserProfileService;
-	private final ValidateAccountIdUsability validateAccountIdUsability;
 	private final UpdateUserProfileService updateUserProfile;
+	private final VerifyAccountIdService verifyAccountIdService;
 
 	// 프로필 조회
 	@GetMapping("/profile")
@@ -57,7 +58,7 @@ public class UserController {
 
 	@GetMapping("/check-account-id")
 	public ResponseEntity<Void> checkAccountId(@RequestParam("id") String accountId) {
-		validateAccountIdUsability.doValidate(accountId);
+		verifyAccountIdService.verify(new AccountId(accountId));
 		return ResponseEntity.ok().build();
 	}
 }

@@ -1,7 +1,6 @@
 package today.seasoning.seasoning.user.service;
 
 import com.github.f4b6a3.tsid.TsidCreator;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,55 +18,43 @@ import today.seasoning.seasoning.user.dto.UpdateUserProfileCommand;
 @RequiredArgsConstructor
 public class UpdateUserProfileService {
 
-	private final S3Service s3Service;
-	private final UserRepository userRepository;
-	private final ValidateAccountIdUsability validateAccountIdUsability;
+    private final S3Service s3Service;
+    private final UserRepository userRepository;
 
-	@Transactional
-	public void doUpdate(UpdateUserProfileCommand command) {
-		User user = userRepository.findById(command.getUserId()).get();
+    @Transactional
+    public void doUpdate(UpdateUserProfileCommand command) {
+        User user = userRepository.findById(command.getUserId()).get();
+        String oldProfileFilename = user.getProfileImageFilename();
 
-		validateNicknameAndAccountId(command, user.getAccountId());
+        verifyAccountId(command, user.getAccountId());
 
-		deleteOldProfileImage(user.getProfileImageFilename());
+        UploadFileInfo uploadFileInfo = uploadProfileImage(command.getProfileImage());
 
-		UploadFileInfo uploadFileInfo = uploadProfileImage(command.getProfileImage());
+        user.updateProfile(command.getAccountId(),
+            command.getNickname(),
+            uploadFileInfo.getFilename(),
+            uploadFileInfo.getUrl());
 
-		user.updateProfile(command.getAccountId(), command.getNickname(),
-			uploadFileInfo.getFilename(),
-			uploadFileInfo.getUrl());
+        userRepository.save(user);
 
-		userRepository.save(user);
-	}
+        s3Service.deleteFile(oldProfileFilename);
+    }
 
-	private void validateNicknameAndAccountId(UpdateUserProfileCommand command,
-		String currentAccountId) {
+    private void verifyAccountId(UpdateUserProfileCommand command, String currentAccountId) {
+        String newAccountId = command.getAccountId();
 
-		validateNicknameFormat(command.getNickname());
+        if (!newAccountId.equals(currentAccountId) && userRepository.existsByAccountId(newAccountId)) {
+            throw new CustomException(HttpStatus.CONFLICT, "아이디 중복");
+        }
+    }
 
-		String newAccountId = command.getAccountId();
-		if (!newAccountId.equals(currentAccountId)) {
-			validateAccountIdUsability.doValidate(newAccountId);
-		}
-	}
+    private UploadFileInfo uploadProfileImage(MultipartFile profileImage) {
+        String uid = TsidCreator.getTsid().encode(62);
+        String originalFilename = profileImage.getOriginalFilename();
+        String uploadFileName = "user/profile/" + uid + "/" + originalFilename;
 
-	private void validateNicknameFormat(String nickname) {
-		if (!Pattern.matches("^[a-zA-Z0-9가-힣]{2,10}$", nickname)) {
-			throw new CustomException(HttpStatus.BAD_REQUEST, "사용할 수 없는 닉네임 입니다.");
-		}
-	}
+        String imageUrl = s3Service.uploadFile(profileImage, uploadFileName);
 
-	private UploadFileInfo uploadProfileImage(MultipartFile profileImage) {
-		String uid = TsidCreator.getTsid().encode(62);
-		String originalFilename = profileImage.getOriginalFilename();
-		String uploadFileName = "user/profile/" + uid + "/" + originalFilename;
-
-		String imageUrl = s3Service.uploadFile(profileImage, uploadFileName);
-
-		return new UploadFileInfo(uploadFileName, imageUrl);
-	}
-
-	private void deleteOldProfileImage(String filename) {
-		s3Service.deleteFile(filename);
-	}
+        return new UploadFileInfo(uploadFileName, imageUrl);
+    }
 }
