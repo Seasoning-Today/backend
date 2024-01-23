@@ -2,6 +2,7 @@ package today.seasoning.seasoning.user.controller;
 
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,40 +26,40 @@ import today.seasoning.seasoning.user.service.VerifyAccountIdService;
 @RequestMapping("/user")
 public class UserController {
 
-	private final FindUserProfileService findUserProfileService;
-	private final UpdateUserProfileService updateUserProfile;
-	private final VerifyAccountIdService verifyAccountIdService;
+    private final UpdateUserProfileService updateUserProfile;
+    private final FindUserProfileService findUserProfileService;
+    private final VerifyAccountIdService verifyAccountIdService;
 
-	// 프로필 조회
-	@GetMapping("/profile")
-	public ResponseEntity<UserProfileDto> findUserProfile(
-		@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    // 프로필 조회
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDto> findUserProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        UserProfileDto userProfile = findUserProfileService.findUserProfile(userPrincipal.getId());
+        return ResponseEntity.ok().body(userProfile);
+    }
 
-		UserProfileDto userProfile = findUserProfileService.findUserProfile(userPrincipal.getId());
-		return ResponseEntity.ok().body(userProfile);
-	}
+    // 프로필 수정
+    @PutMapping("/profile")
+    public ResponseEntity<Void> updateUserProfile(
+        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @RequestPart(name = "image", required = false) MultipartFile profileImage,
+        @RequestPart(name = "request") @Valid UpdateUserProfileDto dto
+    ) {
+        UpdateUserProfileCommand command = new UpdateUserProfileCommand(
+            userPrincipal.getId(),
+            dto.getAccountId(),
+            dto.getNickname(),
+            profileImage);
 
-	// 프로필 수정
-	@PutMapping("/profile")
-	public ResponseEntity<Void> updateUserProfile(
-		@AuthenticationPrincipal UserPrincipal userPrincipal,
-		@RequestPart(name = "image", required = false) MultipartFile profileImage,
-		@RequestPart(name = "request") @Valid UpdateUserProfileDto dto) {
+        updateUserProfile.doUpdate(command);
 
-		UpdateUserProfileCommand command = new UpdateUserProfileCommand(
-			userPrincipal.getId(),
-			dto.getAccountId(),
-			dto.getNickname(),
-			profileImage);
+        return ResponseEntity.ok().build();
+    }
 
-		updateUserProfile.doUpdate(command);
-
-		return ResponseEntity.ok().build();
-	}
-
-	@GetMapping("/check-account-id")
-	public ResponseEntity<Void> checkAccountId(@RequestParam("id") String accountId) {
-		verifyAccountIdService.verify(new AccountId(accountId));
-		return ResponseEntity.ok().build();
-	}
+    @GetMapping("/check-account-id")
+    public ResponseEntity<Void> checkAccountId(@RequestParam("id") String accountId) {
+        if (verifyAccountIdService.verify(new AccountId(accountId))) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 }
