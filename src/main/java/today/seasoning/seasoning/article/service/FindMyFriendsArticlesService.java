@@ -22,13 +22,13 @@ public class FindMyFriendsArticlesService {
 	private final EntityManager entityManager;
 
 	private final String SQL = "SELECT a FROM Article a " +
-		"INNER JOIN Friendship f ON a.user.id = f.toUser.id " +
-		"WHERE f.fromUser.id = :userId " +
+		"INNER JOIN Friendship f ON a.user.id = f.friend.id " +
+		"WHERE f.user.id = :userId " +
 		"AND f.valid = true " +
 		"AND EXISTS (" +
 		"   SELECT 1 FROM Friendship f2 " +
-		"   WHERE f2.fromUser.id = a.user.id " +
-		"   AND f2.toUser.id = :userId " +
+		"   WHERE f2.user.id = a.user.id " +
+		"   AND f2.friend.id = :userId " +
 		"   AND f2.valid = true" +
 		") " +
 		"AND a.published = true " +

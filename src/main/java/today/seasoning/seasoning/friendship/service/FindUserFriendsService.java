@@ -21,9 +21,9 @@ public class FindUserFriendsService {
 	private final CheckFriendshipValid checkFriendshipValid;
 
 	public List<FindUserFriendsResult> doFind(Long userId) {
-		return friendshipRepository.findByToUserId(userId)
+		return friendshipRepository.findByFriendId(userId)
 			.stream()
-			.map(Friendship::getFromUser)
+			.map(Friendship::getUser)
 			.filter(friend -> checkFriendshipValid.doCheck(userId, friend.getId()))
 			.map(this::createFindUserFriendsResult)
 			.collect(Collectors.toList());

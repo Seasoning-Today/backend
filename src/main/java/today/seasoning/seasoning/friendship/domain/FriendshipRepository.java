@@ -9,12 +9,13 @@ import java.util.Optional;
 
 public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 
-	@Query("SELECT f FROM Friendship f WHERE f.fromUser.id = :fromUserId AND f.toUser.id = :toUserId")
+	@Query("SELECT f FROM Friendship f WHERE f.user.id = :userId AND f.friend.id = :friendId")
 	Optional<Friendship> findByUserIds(
-		@Param("fromUserId") Long fromUserId,
-		@Param("toUserId") Long toUserId);
+		@Param("userId") Long userId,
+		@Param("friendId") Long friendId
+	);
 
-	@Query("SELECT f FROM Friendship f WHERE f.toUser.id = :toUserId")
-	List<Friendship> findByToUserId(@Param("toUserId") Long toUserId);
+	@Query("SELECT f FROM Friendship f WHERE f.user.id = :friendId")
+	List<Friendship> findByFriendId(@Param("friendId") Long friendId);
 
 }

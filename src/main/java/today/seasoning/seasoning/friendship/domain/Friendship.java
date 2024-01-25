@@ -21,20 +21,20 @@ public class Friendship extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "from_user_id")
-	private User fromUser;
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "to_user_id")
-	private User toUser;
+	@JoinColumn(name = "friend_id")
+	private User friend;
 
 	@Column(nullable = false)
 	private boolean valid;
 
-	public Friendship(User fromUser, User toUser, boolean valid) {
+	public Friendship(User user, User friend, boolean valid) {
 		this.id = TsidUtil.createLong();
-		this.fromUser = fromUser;
-		this.toUser = toUser;
+		this.user = user;
+		this.friend = friend;
 		this.valid = valid;
 	}
 
