@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, Long> {
 
+    boolean existsByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
+
+    void deleteByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
 }

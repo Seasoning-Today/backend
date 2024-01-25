@@ -27,13 +27,9 @@ public class FriendRequest extends BaseTimeEntity {
     @JoinColumn(name = "to_user_id")
     private User toUser;
 
-    public FriendRequest(Long id, User fromUser, User toUser) {
-        this.id = id;
+    public FriendRequest(User fromUser, User toUser) {
+        this.id = TsidUtil.createLong();
         this.fromUser = fromUser;
         this.toUser = toUser;
-    }
-
-    public static FriendRequest build(User fromUser, User toUser) {
-        return new FriendRequest(TsidUtil.createLong(), fromUser, toUser);
     }
 }
