@@ -39,14 +39,17 @@ class RequestFriendshipServiceTest {
 
     @BeforeEach
     void initUserRepository() {
-        given(userRepository.findById(requester.getId())).willReturn(Optional.of(requester));
+        given(userRepository.findById(requester.getId()))
+            .willReturn(Optional.of(requester));
     }
 
     @Test
     @DisplayName("성공")
     void success() {
         //given : 상대방이 존재하고, 친구 신청 내역이 없으면
-        given(userRepository.findByAccountId(requestee.getAccountId())).willReturn(Optional.of(requestee));
+        given(userRepository.findByAccountId(requestee.getAccountId()))
+            .willReturn(Optional.of(requestee));
+
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
             .willReturn(false);
 
@@ -58,7 +61,8 @@ class RequestFriendshipServiceTest {
     @DisplayName("실패 - 상대방 조회 실패")
     void failedByRequesteeNotFound() {
         //given : 아이디에 해당하는 회원이 없는 경우
-        given(userRepository.findByAccountId(requestee.getAccountId())).willReturn(Optional.empty());
+        given(userRepository.findByAccountId(requestee.getAccountId()))
+            .willReturn(Optional.empty());
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.BAD_REQUEST);
@@ -70,7 +74,8 @@ class RequestFriendshipServiceTest {
         //given : 자신의 아이디로 친구 신청한 경우
         String accountId = requester.getAccountId();
 
-        given(userRepository.findByAccountId(accountId)).willReturn(Optional.of(requester));
+        given(userRepository.findByAccountId(accountId))
+            .willReturn(Optional.of(requester));
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(requester.getId(), accountId, HttpStatus.BAD_REQUEST);
@@ -83,7 +88,8 @@ class RequestFriendshipServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
             .willReturn(true);
 
-        given(userRepository.findByAccountId(requestee.getAccountId())).willReturn(Optional.of(requestee));
+        given(userRepository.findByAccountId(requestee.getAccountId()))
+            .willReturn(Optional.of(requestee));
 
         //when & then : 409 Conflict 예외가 발생한다
         assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.CONFLICT);
