@@ -34,7 +34,7 @@ public class AcceptFriendRequestService {
         User requester = userRepository.findByAccountId(requesterAccountId)
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "상대방 조회 실패"));
 
-        if (friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId())) {
+        if (!friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "신청 내역 없음");
         }
 
