@@ -6,7 +6,7 @@ import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CheckFriendshipValidImpl implements CheckFriendshipValid {
+public class CheckFriendshipServiceImpl implements CheckFriendshipService {
 
     private final FriendshipRepository friendshipRepository;
 

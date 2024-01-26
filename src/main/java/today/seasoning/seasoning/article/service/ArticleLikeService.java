@@ -10,7 +10,7 @@ import today.seasoning.seasoning.article.domain.ArticleLikeRepository;
 import today.seasoning.seasoning.article.domain.ArticleRepository;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.common.util.EntitySerializationUtil;
-import today.seasoning.seasoning.friendship.service.CheckFriendshipValid;
+import today.seasoning.seasoning.friendship.service.CheckFriendshipService;
 import today.seasoning.seasoning.notification.domain.NotificationType;
 import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.user.domain.User;
@@ -25,7 +25,7 @@ public class ArticleLikeService {
 	private final UserRepository userRepository;
 	private final ArticleRepository articleRepository;
 	private final ArticleLikeRepository articleLikeRepository;
-	private final CheckFriendshipValid checkFriendshipValid;
+	private final CheckFriendshipService checkFriendshipService;
 	private final NotificationService notificationService;
 
 	public void doLike(Long userId, Long articleId) {
@@ -78,7 +78,7 @@ public class ArticleLikeService {
 			return;
 		}
 		// 공개된 친구의 글
-		if (article.isPublished() && checkFriendshipValid.doCheck(userId, authorId)) {
+		if (article.isPublished() && checkFriendshipService.doCheck(userId, authorId)) {
 			return;
 		}
 
