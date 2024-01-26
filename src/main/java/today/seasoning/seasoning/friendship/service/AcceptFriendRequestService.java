@@ -29,10 +29,10 @@ public class AcceptFriendRequestService {
     @Transactional
     public void doService(Long userId, String requesterAccountId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "회원 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "회원 조회 실패"));
 
         User requester = userRepository.findByAccountId(requesterAccountId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "상대방 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
 
         if (!friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId())) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "신청 내역 없음");

@@ -23,7 +23,7 @@ public class SearchUserService {
     @Transactional(readOnly = true)
     public SearchUserResult doService(Long userId, String friendAccountId) {
         User friend = userRepository.findByAccountId(friendAccountId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "친구 검색 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "회원 조회 실패"));
 
         FriendshipStatus friendshipStatus = resolveFriendshipStatus(userId, friend);
 

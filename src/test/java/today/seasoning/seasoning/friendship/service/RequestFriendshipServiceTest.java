@@ -60,8 +60,8 @@ class RequestFriendshipServiceTest {
         //given : 아이디에 해당하는 회원이 없는 경우
         given(userRepository.findByAccountId(requestee.getAccountId())).willReturn(Optional.empty());
 
-        //when & then : Not Found 예외가 발생한다
-        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.NOT_FOUND);
+        //when & then : Bad Request 예외가 발생한다
+        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test

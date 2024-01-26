@@ -20,7 +20,7 @@ public class UnfriendService {
 
     public void doService(Long userId, String friendAccountId) {
         User friend = userRepository.findByAccountId(friendAccountId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "친구 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "회원 조회 실패"));
 
         deleteFriendship(userId, friend.getId());
         deleteFriendship(friend.getId(), userId);
@@ -28,7 +28,7 @@ public class UnfriendService {
 
     private void deleteFriendship(Long userId, Long friendId) {
         Friendship friendship = friendshipRepository.findByUserIdAndFriendId(userId, friendId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Friendship Not Found"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "Invalid Friendship"));
 
         friendshipRepository.delete(friendship);
     }

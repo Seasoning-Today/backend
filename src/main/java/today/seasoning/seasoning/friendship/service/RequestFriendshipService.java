@@ -27,7 +27,7 @@ public class RequestFriendshipService {
 		User fromUser = userRepository.findById(fromUserId).get();
 
 		User toUser = userRepository.findByAccountId(toUserAccountId)
-			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "상대 회원 조회 실패"));
+			.orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
 
 		checkException(fromUser, toUser);
 

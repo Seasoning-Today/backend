@@ -19,10 +19,10 @@ public class CancelFriendRequestService {
 
     public void doService(Long userId, String requesteeAccountId) {
         User requestee = userRepository.findByAccountId(requesteeAccountId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "상대방 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
 
         if (!friendRequestRepository.existsByFromUserIdAndToUserId(userId, requestee.getId())) {
-            throw new CustomException(HttpStatus.NOT_FOUND, "신청 내역 없음");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "신청 내역 없음");
         }
 
         friendRequestRepository.deleteByFromUserIdAndToUserId(userId, requestee.getId());
