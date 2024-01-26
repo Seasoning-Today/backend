@@ -41,14 +41,14 @@ public class SearchUserService {
             return FriendshipStatus.FRIEND;
         }
 
-        // 친구 요청 상태
-        if (friendRequestRepository.existsByFromUserIdAndToUserId(userId, friend.getId())) {
-            return FriendshipStatus.SENT;
-        }
-
         // 친구 요청 받은 상태
         if (friendRequestRepository.existsByFromUserIdAndToUserId(friend.getId(), userId)) {
             return FriendshipStatus.RECEIVED;
+        }
+
+        // 친구 요청 상태
+        if (friendRequestRepository.existsByFromUserIdAndToUserId(userId, friend.getId())) {
+            return FriendshipStatus.SENT;
         }
 
         return FriendshipStatus.UNFRIEND;
