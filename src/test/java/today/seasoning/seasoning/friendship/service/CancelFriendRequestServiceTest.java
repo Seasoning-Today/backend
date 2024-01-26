@@ -35,7 +35,7 @@ class CancelFriendRequestServiceTest {
     @Test
     @DisplayName("성공")
     void success() {
-        //given : 상대방이 조회되고, 상대로부터 나에게 온 친구 신청 내역이 존재하면
+        //given : 상대방이 존재하고, 내가 상대방에게 친구 신청한 내역이 있으면
         given(userRepository.findByAccountId(requestee.getAccountId()))
             .willReturn(Optional.of(requestee));
 
