@@ -12,7 +12,7 @@ import today.seasoning.seasoning.article.domain.ArticleRepository;
 import today.seasoning.seasoning.article.dto.FindArticleImageResult;
 import today.seasoning.seasoning.article.dto.FindArticleResult;
 import today.seasoning.seasoning.common.exception.CustomException;
-import today.seasoning.seasoning.friendship.service.CheckFriendshipValid;
+import today.seasoning.seasoning.friendship.service.CheckFriendshipService;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ import today.seasoning.seasoning.friendship.service.CheckFriendshipValid;
 public class FindArticleService {
 
 	private final ArticleRepository articleRepository;
-	private final CheckFriendshipValid checkFriendshipValid;
+	private final CheckFriendshipService checkFriendshipService;
 
 	public FindArticleResult doFind(Long userId, Long articleId) {
 		Article article = articleRepository.findById(articleId)
@@ -39,7 +39,7 @@ public class FindArticleService {
 			return;
 		}
 		// 공개된 친구의 글
-		if (article.isPublished() && checkFriendshipValid.doCheck(userId, authorId)) {
+		if (article.isPublished() && checkFriendshipService.doCheck(userId, authorId)) {
 			return;
 		}
 
