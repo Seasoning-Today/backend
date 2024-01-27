@@ -1,10 +1,11 @@
 package today.seasoning.seasoning.friendship.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,15 +49,18 @@ class AcceptFriendRequestServiceTest {
     @Test
     @DisplayName("성공")
     void success() {
-        //given : 상대방이 조회되고, 상대로부터 나에게 온 친구 신청 내역이 존재하면
+        //given : 아이디로 상대방이 조회되고, 상대방이 나에게 친구 요청한 경우
         given(userRepository.findByAccountId(requester.getAccountId()))
             .willReturn(Optional.of(requester));
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(true);
 
-        //when & then : 예외가 발생하지 않는다
-        Assertions.assertDoesNotThrow(() -> acceptFriendRequestService.doService(user.getId(), requester.getAccountId()));
+        //when & then : 친구 수락 시, 예외가 발생하지 않으며
+        assertDoesNotThrow(() -> acceptFriendRequestService.doService(user.getId(), requester.getAccountId()));
+        // 서로의 친구 요청 내역이 삭제되어야 한다
+        verify(friendRequestRepository).deleteByFromUserIdAndToUserId(requester.getId(), user.getId());
+        verify(friendRequestRepository).deleteByFromUserIdAndToUserId(user.getId(), requester.getId());
     }
 
     @Test
