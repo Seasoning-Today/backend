@@ -24,7 +24,7 @@ public class AccountId {
         String regex = "^(?!.*\\.\\.)(?!.*\\.$)[^\\W][\\w.]{4,19}$";
 
         if (accountId == null || accountId.matches(upperCases) || !accountId.matches(regex)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "Invalid ID Format");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Invalid ID Format");
         }
     }
 

@@ -22,7 +22,7 @@ public class Nickname {
         String regex = "^[a-zA-Z0-9가-힣]{2,10}$";
 
         if (nickname == null || !Pattern.matches(regex, nickname)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "Invalid Nickname");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Invalid Nickname");
         }
     }
 

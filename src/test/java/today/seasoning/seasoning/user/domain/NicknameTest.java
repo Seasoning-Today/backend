@@ -54,6 +54,6 @@ class NicknameTest {
     private void assertFailedValidation(String invalidNickname) {
         assertThatThrownBy(() -> new Nickname(invalidNickname))
             .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.FORBIDDEN);
+            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
     }
 }
