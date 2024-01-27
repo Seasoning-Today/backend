@@ -44,6 +44,7 @@ public class AcceptFriendRequestService {
 
         // 친구 요청 내역 삭제
         friendRequestRepository.deleteByFromUserIdAndToUserId(requester.getId(), user.getId());
+        friendRequestRepository.deleteByFromUserIdAndToUserId(user.getId(), requester.getId());
 
         // 알림 등록
         registerNotifications(user, requester);
