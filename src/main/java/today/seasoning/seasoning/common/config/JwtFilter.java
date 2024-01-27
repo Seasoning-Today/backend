@@ -77,7 +77,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private UserPrincipal createPrincipal(String token) {
         User user = userRepository.findById(JwtUtil.getUserId(token))
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "회원 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "Invalid Token Claims"));
 
         return UserPrincipal.build(user);
     }
