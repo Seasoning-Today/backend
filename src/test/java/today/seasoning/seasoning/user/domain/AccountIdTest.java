@@ -81,6 +81,6 @@ class AccountIdTest {
     private void assertFailedValidation(String invalidAccountId) {
         assertThatThrownBy(() -> new AccountId(invalidAccountId))
             .isInstanceOf(CustomException.class)
-            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.FORBIDDEN);
+            .hasFieldOrPropertyWithValue("httpStatus", HttpStatus.BAD_REQUEST);
     }
 }

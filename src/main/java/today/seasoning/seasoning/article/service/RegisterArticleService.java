@@ -53,7 +53,7 @@ public class RegisterArticleService {
         }
 
         if (command.getImages().size() > ARTICLE_IMAGES_LIMIT) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "이미지 개수 초과");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
         }
     }
 

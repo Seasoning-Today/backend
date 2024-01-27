@@ -51,7 +51,7 @@ public class ArticleLikeService {
 		validatePermission(userId, article);
 
 		ArticleLike articleLike = articleLikeRepository.findByArticleAndUser(articleId, userId)
-			.orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "좋아요를 누르지 않았습니다"));
+			.orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "좋아요를 누르지 않았습니다"));
 
 		articleLikeRepository.delete(articleLike);
 	}
