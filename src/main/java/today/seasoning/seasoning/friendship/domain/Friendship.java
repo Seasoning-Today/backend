@@ -28,21 +28,9 @@ public class Friendship extends BaseTimeEntity {
 	@JoinColumn(name = "friend_id")
 	private User friend;
 
-	@Column(nullable = false)
-	private boolean valid;
-
-	public Friendship(User user, User friend, boolean valid) {
+	public Friendship(User user, User friend) {
 		this.id = TsidUtil.createLong();
 		this.user = user;
 		this.friend = friend;
-		this.valid = valid;
-	}
-
-	public boolean isValid() {
-		return valid;
-	}
-
-	public void setValid() {
-		this.valid = true;
 	}
 }
