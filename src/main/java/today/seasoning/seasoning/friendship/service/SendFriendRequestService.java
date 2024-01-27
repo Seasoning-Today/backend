@@ -8,6 +8,7 @@ import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.common.util.EntitySerializationUtil;
 import today.seasoning.seasoning.friendship.domain.FriendRequest;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
+import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.notification.domain.NotificationType;
 import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.user.domain.User;
@@ -21,6 +22,7 @@ public class SendFriendRequestService {
 
 	private final UserRepository userRepository;
 	private final NotificationService notificationService;
+	private final FriendshipRepository friendshipRepository;
 	private final FriendRequestRepository friendRequestRepository;
 
 	public void doService(Long fromUserId, String toUserAccountId) {
@@ -37,12 +39,19 @@ public class SendFriendRequestService {
 	}
 
 	private void checkException(User fromUser, User toUser) {
+		// 자신에게 친구 요청한 경우
 		if (fromUser == toUser) {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Invalid Request");
 		}
 
+		// 이미 친구 신청을 한 경우
 		if (friendRequestRepository.existsByFromUserIdAndToUserId(fromUser.getId(), toUser.getId())) {
-			throw new CustomException(HttpStatus.CONFLICT, "Already Requested");
+			throw new CustomException(HttpStatus.CONFLICT, "Friend request already sent");
+		}
+
+		// 이미 친구인 경우
+		if (friendshipRepository.existsByUserIdAndFriendId(fromUser.getId(), toUser.getId())) {
+			throw new CustomException(HttpStatus.CONFLICT, "Already friends with this user");
 		}
 	}
 
