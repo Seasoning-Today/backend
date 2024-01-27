@@ -17,7 +17,7 @@ import today.seasoning.seasoning.user.dto.UserProfileDto;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RequestFriendshipService {
+public class SendFriendRequestService {
 
 	private final UserRepository userRepository;
 	private final NotificationService notificationService;

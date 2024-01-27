@@ -22,7 +22,7 @@ import today.seasoning.seasoning.user.domain.UserRepository;
 
 @DisplayName("친구 신청 서비스")
 @ExtendWith(MockitoExtension.class)
-class RequestFriendshipServiceTest {
+class SendFriendRequestServiceTest {
 
     @Mock
     UserRepository userRepository;
@@ -32,7 +32,7 @@ class RequestFriendshipServiceTest {
     FriendRequestRepository friendRequestRepository;
 
     @InjectMocks
-    RequestFriendshipService requestFriendshipService;
+    SendFriendRequestService sendFriendRequestService;
 
     User requester = new User("requester", "https://test.com/requester.jpg", "requester@email.com", LoginType.KAKAO);
     User requestee = new User("requestee", "https://test.com/requestee.jpg", "requestee@email.com", LoginType.KAKAO);
@@ -54,7 +54,7 @@ class RequestFriendshipServiceTest {
             .willReturn(false);
 
         //when & then : 예외가 발생하지 않는다
-        assertDoesNotThrow(() -> requestFriendshipService.doService(requester.getId(), requestee.getAccountId()));
+        assertDoesNotThrow(() -> sendFriendRequestService.doService(requester.getId(), requestee.getAccountId()));
     }
 
     @Test
@@ -96,7 +96,7 @@ class RequestFriendshipServiceTest {
     }
 
     private void assertFailedValidation(Long requesterId, String requesteeAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> requestFriendshipService.doService(requesterId, requesteeAccountId))
+        assertThatThrownBy(() -> sendFriendRequestService.doService(requesterId, requesteeAccountId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }
