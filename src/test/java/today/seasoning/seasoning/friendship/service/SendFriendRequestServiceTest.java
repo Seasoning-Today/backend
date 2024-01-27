@@ -16,13 +16,14 @@ import org.springframework.http.HttpStatus;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
+import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
 @DisplayName("친구 신청 서비스")
 @ExtendWith(MockitoExtension.class)
-class RequestFriendshipServiceTest {
+class SendFriendRequestServiceTest {
 
     @Mock
     UserRepository userRepository;
@@ -30,9 +31,10 @@ class RequestFriendshipServiceTest {
     NotificationService notificationService;
     @Mock
     FriendRequestRepository friendRequestRepository;
-
+    @Mock
+    FriendshipRepository friendshipRepository;
     @InjectMocks
-    RequestFriendshipService requestFriendshipService;
+    SendFriendRequestService sendFriendRequestService;
 
     User requester = new User("requester", "https://test.com/requester.jpg", "requester@email.com", LoginType.KAKAO);
     User requestee = new User("requestee", "https://test.com/requestee.jpg", "requestee@email.com", LoginType.KAKAO);
@@ -54,7 +56,7 @@ class RequestFriendshipServiceTest {
             .willReturn(false);
 
         //when & then : 예외가 발생하지 않는다
-        assertDoesNotThrow(() -> requestFriendshipService.doService(requester.getId(), requestee.getAccountId()));
+        assertDoesNotThrow(() -> sendFriendRequestService.doService(requester.getId(), requestee.getAccountId()));
     }
 
     @Test
@@ -82,7 +84,7 @@ class RequestFriendshipServiceTest {
     }
 
     @Test
-    @DisplayName("실패 - 이미 신청함")
+    @DisplayName("실패 - 이미 신청한 상태")
     void failedByAlreadyExists() {
         //given : 친구 신청 내역이 존재하는 경우(=이미 신청한 경우)
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
@@ -95,8 +97,25 @@ class RequestFriendshipServiceTest {
         assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.CONFLICT);
     }
 
+    @Test
+    @DisplayName("실패 - 이미 친구인 상태")
+    void test() {
+        //given: 이미 친구인 경우
+        given(friendshipRepository.existsByUserIdAndFriendId(requester.getId(), requestee.getId()))
+            .willReturn(true);
+
+        given(userRepository.findByAccountId(requestee.getAccountId()))
+            .willReturn(Optional.of(requestee));
+
+        given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
+            .willReturn(false);
+
+        //when & then : 409 Conflict 예외가 발생한다
+        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.CONFLICT);
+    }
+
     private void assertFailedValidation(Long requesterId, String requesteeAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> requestFriendshipService.doService(requesterId, requesteeAccountId))
+        assertThatThrownBy(() -> sendFriendRequestService.doService(requesterId, requesteeAccountId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }

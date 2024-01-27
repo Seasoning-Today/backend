@@ -20,7 +20,7 @@ import today.seasoning.seasoning.friendship.service.AcceptFriendRequestService;
 import today.seasoning.seasoning.friendship.service.CancelFriendRequestService;
 import today.seasoning.seasoning.friendship.service.DeclineFriendRequestService;
 import today.seasoning.seasoning.friendship.service.FindUserFriendsService;
-import today.seasoning.seasoning.friendship.service.RequestFriendshipService;
+import today.seasoning.seasoning.friendship.service.SendFriendRequestService;
 import today.seasoning.seasoning.friendship.service.SearchUserService;
 import today.seasoning.seasoning.friendship.service.UnfriendService;
 
@@ -29,13 +29,13 @@ import today.seasoning.seasoning.friendship.service.UnfriendService;
 @RequiredArgsConstructor
 public class FriendshipController {
 
-    private final RequestFriendshipService requestFriendshipService;
+    private final UnfriendService unfriendService;
+    private final SearchUserService searchUserService;
     private final FindUserFriendsService findUserFriendsService;
+    private final SendFriendRequestService sendFriendRequestService;
     private final AcceptFriendRequestService acceptFriendRequestService;
     private final CancelFriendRequestService cancelFriendRequestService;
     private final DeclineFriendRequestService declineFriendRequestService;
-    private final UnfriendService unfriendService;
-    private final SearchUserService searchUserService;
 
     @RequestMapping("/add")
     public ResponseEntity<String> requestFriendship(
@@ -45,7 +45,7 @@ public class FriendshipController {
         Long userId = principal.getId();
         String requesteeAccountId = accountIdDto.getAccountId();
 
-        requestFriendshipService.doService(userId, requesteeAccountId);
+        sendFriendRequestService.doService(userId, requesteeAccountId);
 
         return ResponseEntity.ok().body("신청 완료");
     }
