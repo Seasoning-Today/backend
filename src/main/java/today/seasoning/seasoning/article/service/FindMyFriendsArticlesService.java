@@ -22,15 +22,7 @@ public class FindMyFriendsArticlesService {
 	private final EntityManager entityManager;
 
 	private final String SQL = "SELECT a FROM Article a " +
-		"INNER JOIN Friendship f ON a.user.id = f.friend.id " +
-		"WHERE f.user.id = :userId " +
-		"AND f.valid = true " +
-		"AND EXISTS (" +
-		"   SELECT 1 FROM Friendship f2 " +
-		"   WHERE f2.user.id = a.user.id " +
-		"   AND f2.friend.id = :userId " +
-		"   AND f2.valid = true" +
-		") " +
+		"INNER JOIN Friendship f ON a.user.id = f.user.id AND f.friend.id = :userId " +
 		"AND a.published = true " +
 		"AND a.id < :articleId " +
 		"ORDER BY a.id DESC";

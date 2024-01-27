@@ -39,8 +39,8 @@ public class AcceptFriendRequestService {
         }
 
         // 친구 관계 설정
-        friendshipRepository.save(new Friendship(user, requester, true));
-        friendshipRepository.save(new Friendship(requester, user, true));
+        friendshipRepository.save(new Friendship(user, requester));
+        friendshipRepository.save(new Friendship(requester, user));
 
         // 친구 요청 내역 삭제
         friendRequestRepository.deleteByFromUserIdAndToUserId(requester.getId(), user.getId());

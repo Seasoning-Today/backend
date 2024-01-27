@@ -36,8 +36,8 @@ class UnfriendServiceTest {
 
     User user = new User("user", "https://test/user.jpg", "user@email.com", LoginType.KAKAO);
     User friend = new User("friend", "https://test/friend.jpg", "friend@email.com", LoginType.KAKAO);
-    Friendship userToFriendFriendship = new Friendship(user, friend, true);
-    Friendship friendToUserFriendship = new Friendship(friend, user, true);
+    Friendship userToFriendFriendship = new Friendship(user, friend);
+    Friendship friendToUserFriendship = new Friendship(friend, user);
 
     @Test
     @DisplayName("성공")
