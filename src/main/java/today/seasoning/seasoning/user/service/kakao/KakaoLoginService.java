@@ -40,7 +40,7 @@ public class KakaoLoginService {
         LoginInfo loginInfo = handleLogin(userProfile);
 
         // 토큰 발급
-        TokenInfo tokenInfo = JwtUtil.createToken(loginInfo.getUser().getId(), KAKAO_LOGIN_TYPE);
+        TokenInfo tokenInfo = JwtUtil.createToken(loginInfo.getUser().getId());
 
         // 리프레시 토큰 저장
         refreshTokenService.save(tokenInfo.getRefreshToken(), loginInfo.getUser().getId());

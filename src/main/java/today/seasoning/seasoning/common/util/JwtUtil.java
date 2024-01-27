@@ -10,15 +10,14 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import today.seasoning.seasoning.common.token.domain.TokenProperties;
-import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
+import today.seasoning.seasoning.common.token.domain.TokenProperties;
 
 @Component
 public class JwtUtil {
 
-    private static TokenProperties tokenProperties;
     private static SecretKey secretKey;
+    private static TokenProperties tokenProperties;
 
     @Autowired
     private JwtUtil(TokenProperties tokenProperties) {
@@ -27,9 +26,9 @@ public class JwtUtil {
     }
 
     // 새로운 액세스 토큰 및 리프레시 토큰 생성
-    public static TokenInfo createToken(long userId, LoginType loginType) {
-        String accessToken = generateAccessToken(userId, loginType);
-        String refreshToken = generateRefreshToken(loginType);
+    public static TokenInfo createToken(long userId) {
+        String accessToken = generateAccessToken(userId);
+        String refreshToken = generateRefreshToken();
         return new TokenInfo(accessToken, refreshToken);
     }
 
@@ -37,35 +36,30 @@ public class JwtUtil {
     // 리프레시 토큰 탈취 피해를 줄이기 위해 리프레시 토큰도 재생성 (만료시간은 유지)
     public static TokenInfo refreshToken(long userId, String refreshToken) {
         Claims claims = getClaims(refreshToken);
-        LoginType loginType = LoginType.valueOf(claims.get("loginType", String.class));
         Date refreshTokenExpirationDate = claims.getExpiration();
 
-        String accessToken = generateAccessToken(userId, loginType);
-        String newRefreshToken = regenerateRefreshToken(loginType, refreshTokenExpirationDate.getTime());
+        String accessToken = generateAccessToken(userId);
+        String newRefreshToken = regenerateRefreshToken(refreshTokenExpirationDate.getTime());
         return new TokenInfo(accessToken, newRefreshToken);
     }
 
     // 액세스 토큰 생성
-    private static String generateAccessToken(Long userId, LoginType loginType) {
-        return generateToken(userId, loginType,
-            System.currentTimeMillis() + tokenProperties.getAccessTokenExpirationTimeMillis());
+    private static String generateAccessToken(Long userId) {
+        return generateToken(userId, System.currentTimeMillis() + tokenProperties.getAccessTokenExpirationTimeMillis());
     }
 
     // 리프레시 토큰 생성
-    private static String generateRefreshToken(LoginType loginType) {
-        return generateToken(null, loginType,
-            System.currentTimeMillis() + tokenProperties.getRefreshTokenExpirationTimeMillis());
+    private static String generateRefreshToken() {
+        return generateToken(null, System.currentTimeMillis() + tokenProperties.getRefreshTokenExpirationTimeMillis());
     }
 
     // 리프레시 토큰 재발급 (만료시간은 유지)
-    private static String regenerateRefreshToken(LoginType loginType, long expirationTimeMillis) {
-        return generateToken(null, loginType, expirationTimeMillis);
+    private static String regenerateRefreshToken(long expirationTimeMillis) {
+        return generateToken(null, expirationTimeMillis);
     }
 
-    private static String generateToken(Long userId, LoginType loginType, long expirationTimeMillis) {
+    private static String generateToken(Long userId, long expirationTimeMillis) {
         ClaimsBuilder claimsBuilder = Jwts.claims();
-        claimsBuilder.add("loginType", loginType.name());
-
         // 리프레시 토큰은 subject 설정 X
         if (userId != null) {
             claimsBuilder.subject(TsidUtil.toString(userId));
@@ -89,10 +83,6 @@ public class JwtUtil {
 
     public static long getUserId(String token) {
         return TsidUtil.toLong(getClaims(token).getSubject());
-    }
-
-    public static LoginType getLoginType(String token) {
-        return LoginType.valueOf((getClaims(token).get("loginType", String.class)));
     }
 
     // 토큰 유효성 검증 메서드
