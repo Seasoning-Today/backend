@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import today.seasoning.seasoning.user.domain.AccountId;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileCommand;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileDto;
 import today.seasoning.seasoning.user.dto.UserProfileDto;
+import today.seasoning.seasoning.user.service.DeleteUserService;
 import today.seasoning.seasoning.user.service.FindUserProfileService;
 import today.seasoning.seasoning.user.service.UpdateUserProfileService;
 import today.seasoning.seasoning.user.service.VerifyAccountIdService;
@@ -29,6 +31,7 @@ public class UserController {
     private final UpdateUserProfileService updateUserProfile;
     private final FindUserProfileService findUserProfileService;
     private final VerifyAccountIdService verifyAccountIdService;
+    private final DeleteUserService deleteUserService;
 
     // 프로필 조회
     @GetMapping("/profile")
@@ -61,5 +64,11 @@ public class UserController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> unregister(@AuthenticationPrincipal UserPrincipal principal) {
+        deleteUserService.doService(principal.getId());
+        return ResponseEntity.ok().build();
     }
 }
