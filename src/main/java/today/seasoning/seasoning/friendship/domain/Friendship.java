@@ -7,6 +7,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.domain.User;
@@ -19,12 +21,14 @@ public class Friendship extends BaseTimeEntity {
 	@Id
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "friend_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User friend;
 
 	public Friendship(User user, User friend) {

@@ -10,6 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.domain.User;
@@ -24,6 +26,7 @@ public class Notification extends BaseTimeEntity {
 
 	@JoinColumn(name = "user_id")
 	@ManyToOne(fetch = FetchType.LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
 	@Enumerated(EnumType.STRING)
@@ -34,8 +37,7 @@ public class Notification extends BaseTimeEntity {
 	@Column(name = "is_read")
 	private boolean isRead;
 
-	private Notification(Long id, User user, NotificationType type, String message,
-		boolean isRead) {
+	private Notification(Long id, User user, NotificationType type, String message, boolean isRead) {
 		this.id = id;
 		this.user = user;
 		this.type = type;
@@ -43,11 +45,7 @@ public class Notification extends BaseTimeEntity {
 	}
 
 	public static Notification create(NotificationType type, User user, String message) {
-		return new Notification(TsidUtil.createLong(),
-			user,
-			type,
-			message,
-			false);
+		return new Notification(TsidUtil.createLong(), user, type, message, false);
 	}
 
 	public void markAsRead() {
