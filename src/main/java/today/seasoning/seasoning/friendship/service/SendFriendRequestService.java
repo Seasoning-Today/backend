@@ -35,7 +35,7 @@ public class SendFriendRequestService {
 
 		friendRequestRepository.save(new FriendRequest(fromUser, toUser));
 
-		registerNotification(toUser, fromUser);
+		registerNotification(fromUser, toUser);
 	}
 
 	private void checkException(User fromUser, User toUser) {
