@@ -18,25 +18,11 @@ public class SolarTerm extends BaseTimeEntity {
 
     private int sequence;
 
-    private int year;
-
-    private int month;
-
-    private int day;
-
-    public SolarTerm(int sequence, int year, int month, int day) {
-        this.id = TsidUtil.createLong();
-        this.sequence = sequence;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-    }
+    private LocalDate date;
 
     public SolarTerm(int sequence, LocalDate date) {
         this.id = TsidUtil.createLong();
         this.sequence = sequence;
-        this.year = date.getYear();
-        this.month = date.getMonthValue();
-        this.day = date.getDayOfMonth();
+        this.date = date;
     }
 }
