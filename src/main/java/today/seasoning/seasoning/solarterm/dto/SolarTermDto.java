@@ -10,7 +10,7 @@ import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 public class SolarTermDto {
 
     private final int sequence;
-    private final LocalDate localDate;
+    private final LocalDate date;
 
     public static SolarTermDto build(SolarTerm solarTerm) {
         return new SolarTermDto(solarTerm.getSequence(), solarTerm.getDate());
