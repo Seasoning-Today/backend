@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
+import today.seasoning.seasoning.solarterm.dto.FindSolarTermInfoResponse;
 
 @Slf4j
 @Service
@@ -79,5 +80,9 @@ public class SolarTermService {
 
     public Optional<SolarTerm> findRecordSolarTerm() {
         return recordSolarTerm;
+    }
+
+    public FindSolarTermInfoResponse findSolarTermInfo() {
+        return FindSolarTermInfoResponse.build(currentSolarTerm, nextSolarTerm, recordSolarTerm.orElse(null));
     }
 }
