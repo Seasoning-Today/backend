@@ -27,48 +27,38 @@ public class JwtUtil {
 
     // 새로운 액세스 토큰 및 리프레시 토큰 생성
     public static TokenInfo createToken(long userId) {
-        String accessToken = generateAccessToken(userId);
-        String refreshToken = generateRefreshToken();
-        return new TokenInfo(accessToken, refreshToken);
+        return new TokenInfo(generateAccessToken(userId), generateRefreshToken(userId));
     }
 
-    // 리프레시 토큰을 통한 액세스 토큰 및 리프레시 토큰 재발급
-    // 리프레시 토큰 탈취 피해를 줄이기 위해 리프레시 토큰도 재생성 (만료시간은 유지)
-    public static TokenInfo refreshToken(long userId, String refreshToken) {
+    // 리프레시 토큰을 통한 액세스 토큰 재발급
+    public static TokenInfo refreshToken(String refreshToken) {
         Claims claims = getClaims(refreshToken);
-        Date refreshTokenExpirationDate = claims.getExpiration();
-
-        String accessToken = generateAccessToken(userId);
-        String newRefreshToken = regenerateRefreshToken(refreshTokenExpirationDate.getTime());
-        return new TokenInfo(accessToken, newRefreshToken);
+        Long userId = TsidUtil.toLong(claims.get("uid", String.class));
+        return new TokenInfo(generateAccessToken(userId), null);
     }
 
     // 액세스 토큰 생성
     private static String generateAccessToken(Long userId) {
-        return generateToken(userId, System.currentTimeMillis() + tokenProperties.getAccessTokenExpirationTimeMillis());
-    }
-
-    // 리프레시 토큰 생성
-    private static String generateRefreshToken() {
-        return generateToken(null, System.currentTimeMillis() + tokenProperties.getRefreshTokenExpirationTimeMillis());
-    }
-
-    // 리프레시 토큰 재발급 (만료시간은 유지)
-    private static String regenerateRefreshToken(long expirationTimeMillis) {
-        return generateToken(null, expirationTimeMillis);
-    }
-
-    private static String generateToken(Long userId, long expirationTimeMillis) {
         ClaimsBuilder claimsBuilder = Jwts.claims();
-        // 리프레시 토큰은 subject 설정 X
-        if (userId != null) {
-            claimsBuilder.subject(TsidUtil.toString(userId));
-        }
+        claimsBuilder.subject(TsidUtil.toString(userId));
 
         return Jwts.builder()
             .claims(claimsBuilder.build())
             .issuedAt(new Date())
-            .expiration(new Date(expirationTimeMillis))
+            .expiration(new Date(System.currentTimeMillis() + tokenProperties.getAccessTokenExpirationTimeMillis()))
+            .signWith(secretKey, SIG.HS256)
+            .compact();
+    }
+
+    // 리프레시 토큰 생성
+    private static String generateRefreshToken(long userId) {
+        ClaimsBuilder claimsBuilder = Jwts.claims();
+        claimsBuilder.add("uid", TsidUtil.toString(userId));
+
+        return Jwts.builder()
+            .claims(claimsBuilder.build())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + tokenProperties.getRefreshTokenExpirationTimeMillis()))
             .signWith(secretKey, SIG.HS256)
             .compact();
     }

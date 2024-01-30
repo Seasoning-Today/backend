@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
-import today.seasoning.seasoning.common.token.service.RefreshTokenService;
 import today.seasoning.seasoning.common.util.JwtUtil;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
@@ -25,7 +24,6 @@ public class KakaoLoginService {
 
     private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
     private final FetchKakaoUserProfile fetchKakaoUserProfile;
-    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -41,9 +39,6 @@ public class KakaoLoginService {
 
         // 토큰 발급
         TokenInfo tokenInfo = JwtUtil.createToken(loginInfo.getUser().getId());
-
-        // 리프레시 토큰 저장
-        refreshTokenService.save(tokenInfo.getRefreshToken(), loginInfo.getUser().getId());
 
         return new LoginResult(tokenInfo, loginInfo.isFirstLogin());
     }
