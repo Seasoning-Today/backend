@@ -1,6 +1,7 @@
 package today.seasoning.seasoning.solarterm.domain;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import lombok.Getter;
@@ -24,5 +25,9 @@ public class SolarTerm extends BaseTimeEntity {
         this.id = TsidUtil.createLong();
         this.sequence = sequence;
         this.date = date;
+    }
+
+    public int getDaysDiff(LocalDate date) {
+        return (int) Math.abs(ChronoUnit.DAYS.between(this.date, date));
     }
 }

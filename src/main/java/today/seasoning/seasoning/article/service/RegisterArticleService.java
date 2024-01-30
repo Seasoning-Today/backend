@@ -1,7 +1,6 @@
 package today.seasoning.seasoning.article.service;
 
 import com.github.f4b6a3.tsid.TsidCreator;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +17,7 @@ import today.seasoning.seasoning.common.aws.S3Service;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.common.util.TsidUtil;
+import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.service.SolarTermService;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
@@ -37,8 +37,6 @@ public class RegisterArticleService {
     private int ARTICLE_IMAGES_LIMIT;
 
     public Long doRegister(RegisterArticleCommand command) {
-        validateRequest(command);
-
         Article article = createArticle(command);
         articleRepository.save(article);
 
@@ -47,24 +45,21 @@ public class RegisterArticleService {
         return article.getId();
     }
 
-    private void validateRequest(RegisterArticleCommand command) {
-        if (!solarTermService.checkRecordOpen()) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다.");
-        }
-
-        if (command.getImages().size() > ARTICLE_IMAGES_LIMIT) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
-        }
-    }
-
     private Article createArticle(RegisterArticleCommand command) {
         User user = userRepository.findById(command.getUserId()).get();
 
-        return new Article(user, command.isPublished(), LocalDate.now().getYear(),
-            solarTermService.findCurrentTerm(), command.getContents());
+        SolarTerm solarTerm = solarTermService.findRecordSolarTerm()
+            .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
+
+        return new Article(user, command.isPublished(), solarTerm.getDate().getYear(),
+            solarTerm.getSequence(), command.getContents());
     }
 
     private void uploadAndRegisterArticleImages(Article article, List<MultipartFile> images) {
+        if (images.size() > ARTICLE_IMAGES_LIMIT) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
+        }
+
         for (int sequence = 0; sequence < images.size(); sequence++) {
             MultipartFile image = images.get(sequence);
             UploadFileInfo fileInfo = uploadImage(image);

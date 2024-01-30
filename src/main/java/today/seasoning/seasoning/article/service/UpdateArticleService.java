@@ -33,35 +33,22 @@ public class UpdateArticleService {
     private int ARTICLE_IMAGES_LIMIT;
 
     public void doUpdate(UpdateArticleCommand command) {
-        Article article = findArticle(command.getArticleId());
+        Article article = articleRepository.findById(command.getArticleId())
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
 
-        validateRequest(article, command);
+        solarTermService.findRecordSolarTerm()
+            .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
+
+        Long ownerId = article.getUser().getId();
+        if (!ownerId.equals(command.getUserId())) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "권한 없음");
+        }
 
         deleteOldImages(article.getArticleImages());
 
         uploadAndRegisterArticleImages(article, command.getImages());
 
         updateArticle(article, command);
-    }
-
-    private void validateRequest(Article article, UpdateArticleCommand command) {
-        if (!solarTermService.checkRecordOpen()) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다.");
-        }
-
-        if (command.getImages().size() > ARTICLE_IMAGES_LIMIT) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
-        }
-
-        Long authorId = article.getUser().getId();
-        if (!authorId.equals(command.getUserId())) {
-            throw new CustomException(HttpStatus.FORBIDDEN, "권한 없음");
-        }
-    }
-
-    private Article findArticle(Long articleId) {
-        return articleRepository.findById(articleId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
     }
 
     private void deleteOldImages(List<ArticleImage> articleImages) {
@@ -72,6 +59,10 @@ public class UpdateArticleService {
     }
 
     private void uploadAndRegisterArticleImages(Article article, List<MultipartFile> images) {
+        if (images.size() > ARTICLE_IMAGES_LIMIT) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
+        }
+
         for (int sequence = 0; sequence < images.size(); sequence++) {
             MultipartFile image = images.get(sequence);
             UploadFileInfo uploadFileInfo = uploadImage(image);

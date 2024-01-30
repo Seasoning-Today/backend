@@ -2,8 +2,10 @@ package today.seasoning.seasoning.solarterm.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,13 +14,17 @@ import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class SolarTermService {
 
-    // 현재 절기 순번 : 1 ~ 24 (-1 : 절기가 아님)
-    private static int currentOpenTerm;
+    // 날짜상 현재 절기와 다음 절기
+    private SolarTerm currentSolarTerm;
+    private SolarTerm nextSolarTerm;
+    // 현재 기록장이 열린 절기
+    private Optional<SolarTerm> recordSolarTerm;
 
     @Value("${ARTICLE-REGISTRATION-PERIOD}")
     private int ARTICLE_REGISTRATION_PERIOD;
@@ -27,34 +33,51 @@ public class SolarTermService {
     private final NotificationService notificationService;
 
     @PostConstruct
-    @Scheduled(cron = "5 0 0 * * *")
-    public void updateTerm() {
-        int openTerm = calculateOpenTerm(LocalDate.now());
-
-        if (currentOpenTerm < openTerm) {
-            notificationService.registerArticleOpenNotification(openTerm);
-        }
-        currentOpenTerm = openTerm;
+    protected void init() {
+        updateSolarTerms();
     }
 
-    private int calculateOpenTerm(LocalDate date) {
-        List<SolarTerm> solarTerms = solarTermRepository.findByYearAndMonth(date.getYear(), date.getMonthValue());
+    @Scheduled(cron = "5 0 0 * * *")
+    protected void dailyUpdate() {
+        Optional<SolarTerm> pastRecordSolarTerm = recordSolarTerm;
 
-        for (SolarTerm solarTerm : solarTerms) {
-            int daysDifferenceFromTerm = Math.abs(solarTerm.getDay() - date.getDayOfMonth());
-            if (daysDifferenceFromTerm < ARTICLE_REGISTRATION_PERIOD) {
-                return solarTerm.getSequence();
+        updateSolarTerms();
+
+        if (pastRecordSolarTerm.isEmpty() && recordSolarTerm.isPresent()) {
+            notificationService.registerArticleOpenNotification(recordSolarTerm.get().getSequence());
+        }
+    }
+
+    protected void updateSolarTerms() {
+        List<SolarTerm> solarTerms = solarTermRepository.findAllByOrderByDateAsc();
+
+        LocalDate today = LocalDate.now();
+
+        for (int i = 0; i + 1 < solarTerms.size(); i++) {
+            if (!solarTerms.get(i).getDate().isBefore(today)) {
+                currentSolarTerm = solarTerms.get(i);
+                nextSolarTerm = solarTerms.get(i + 1);
+
+                // 현재 기록장이 열린 절기를 계산
+                if (currentSolarTerm.getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
+                    recordSolarTerm = Optional.of(currentSolarTerm);
+                } else if (nextSolarTerm.getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
+                    recordSolarTerm = Optional.of(nextSolarTerm);
+                } else {
+                    recordSolarTerm = Optional.empty();
+                }
+
+                break;
             }
         }
-        return -1;
+
+        log.info("현재 절기 : {} / 다음 절기 : {} / 열린 절기 : {}",
+            currentSolarTerm.getSequence(),
+            nextSolarTerm.getSequence(),
+            recordSolarTerm.map(SolarTerm::getSequence).orElse(-1));
     }
 
-    public int findCurrentTerm() {
-        return currentOpenTerm;
+    public Optional<SolarTerm> findRecordSolarTerm() {
+        return recordSolarTerm;
     }
-
-    public boolean checkRecordOpen() {
-        return currentOpenTerm > 0;
-    }
-
 }
