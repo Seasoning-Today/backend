@@ -83,6 +83,7 @@ public class SolarTermService {
     }
 
     public FindSolarTermInfoResponse findSolarTermInfo() {
-        return FindSolarTermInfoResponse.build(currentSolarTerm, nextSolarTerm, recordSolarTerm.orElse(null));
+        return FindSolarTermInfoResponse.build(currentSolarTerm, nextSolarTerm, recordSolarTerm.orElse(null),
+            ARTICLE_REGISTRATION_PERIOD);
     }
 }

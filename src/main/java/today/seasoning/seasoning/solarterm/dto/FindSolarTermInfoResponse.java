@@ -16,11 +16,17 @@ public class FindSolarTermInfoResponse {
     private final SolarTermDto nextTerm;
     private final SolarTermDto recordTerm;
 
-    public static FindSolarTermInfoResponse build(SolarTerm currentSolarTerm, SolarTerm nextSolarTerm, SolarTerm recordSolarTerm) {
+    public static FindSolarTermInfoResponse build(SolarTerm currentSolarTerm, SolarTerm nextSolarTerm, SolarTerm recordSolarTerm, int recordPeriod) {
         boolean recordable = recordSolarTerm != null;
         SolarTermDto currentTerm = SolarTermDto.build(currentSolarTerm);
         SolarTermDto nextTerm = SolarTermDto.build(nextSolarTerm);
-        SolarTermDto recordTerm = recordable ? SolarTermDto.build(recordSolarTerm) : null;
+
+        SolarTermDto recordTerm = null;
+        if(recordable) {
+            recordTerm = new SolarTermDto(
+                recordSolarTerm.getSequence(),
+                recordSolarTerm.getDate().plusDays(recordPeriod));
+        }
 
         return new FindSolarTermInfoResponse(recordable, currentTerm, nextTerm, recordTerm);
     }
