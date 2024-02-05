@@ -17,8 +17,8 @@ public class CancelFriendRequestService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
 
-    public void doService(Long userId, String requesteeAccountId) {
-        User requestee = userRepository.findByAccountId(requesteeAccountId)
+    public void doService(Long userId, Long requesteeUserId) {
+        User requestee = userRepository.findById(requesteeUserId)
             .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
 
         if (!friendRequestRepository.existsByFromUserIdAndToUserId(userId, requestee.getId())) {

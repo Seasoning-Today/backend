@@ -25,10 +25,10 @@ public class SendFriendRequestService {
 	private final FriendshipRepository friendshipRepository;
 	private final FriendRequestRepository friendRequestRepository;
 
-	public void doService(Long fromUserId, String toUserAccountId) {
+	public void doService(Long fromUserId, Long toUserId) {
 		User fromUser = userRepository.findById(fromUserId).get();
 
-		User toUser = userRepository.findByAccountId(toUserAccountId)
+		User toUser = userRepository.findById(toUserId)
 			.orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
 
 		checkException(fromUser, toUser);

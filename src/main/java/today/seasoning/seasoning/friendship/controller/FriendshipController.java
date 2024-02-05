@@ -13,20 +13,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import today.seasoning.seasoning.common.UserPrincipal;
-import today.seasoning.seasoning.friendship.dto.AccountIdDto;
 import today.seasoning.seasoning.friendship.dto.FindUserFriendsResult;
 import today.seasoning.seasoning.friendship.dto.SearchUserResult;
+import today.seasoning.seasoning.friendship.dto.UserIdDto;
 import today.seasoning.seasoning.friendship.service.AcceptFriendRequestService;
 import today.seasoning.seasoning.friendship.service.CancelFriendRequestService;
 import today.seasoning.seasoning.friendship.service.DeclineFriendRequestService;
 import today.seasoning.seasoning.friendship.service.FindUserFriendsService;
-import today.seasoning.seasoning.friendship.service.SendFriendRequestService;
 import today.seasoning.seasoning.friendship.service.SearchUserService;
+import today.seasoning.seasoning.friendship.service.SendFriendRequestService;
 import today.seasoning.seasoning.friendship.service.UnfriendService;
 
-@RequestMapping("/friend")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/friend")
 public class FriendshipController {
 
     private final UnfriendService unfriendService;
@@ -40,12 +40,12 @@ public class FriendshipController {
     @RequestMapping("/add")
     public ResponseEntity<String> requestFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
-        @Valid @RequestBody AccountIdDto accountIdDto
+        @Valid @RequestBody UserIdDto userIdDto
     ) {
         Long userId = principal.getId();
-        String requesteeAccountId = accountIdDto.getAccountId();
+        Long requesteeUserId = userIdDto.toLong();
 
-        sendFriendRequestService.doService(userId, requesteeAccountId);
+        sendFriendRequestService.doService(userId, requesteeUserId);
 
         return ResponseEntity.ok().body("신청 완료");
     }
@@ -60,12 +60,12 @@ public class FriendshipController {
     @PutMapping("/add/accept")
     public ResponseEntity<String> acceptFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
-        @Valid @RequestBody AccountIdDto accountIdDto
+        @Valid @RequestBody UserIdDto userIdDto
     ) {
         Long userId = principal.getId();
-        String requesterAccountId = accountIdDto.getAccountId();
+        Long requesterUserId = userIdDto.toLong();
 
-        acceptFriendRequestService.doService(userId, requesterAccountId);
+        acceptFriendRequestService.doService(userId, requesterUserId);
 
         return ResponseEntity.ok().body("수락 완료");
     }
@@ -73,12 +73,12 @@ public class FriendshipController {
     @DeleteMapping("/add/cancel")
     public ResponseEntity<String> cancelFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
-        @Valid @RequestBody AccountIdDto accountIdDto
+        @Valid @RequestBody UserIdDto userIdDto
     ) {
         Long userId = principal.getId();
-        String requesteeAccountId = accountIdDto.getAccountId();
+        Long requesteeUserId = userIdDto.toLong();
 
-        cancelFriendRequestService.doService(userId, requesteeAccountId);
+        cancelFriendRequestService.doService(userId, requesteeUserId);
 
         return ResponseEntity.ok().body("취소 완료");
     }
@@ -86,12 +86,12 @@ public class FriendshipController {
     @DeleteMapping("/add/decline")
     public ResponseEntity<String> declineFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
-        @Valid @RequestBody AccountIdDto accountIdDto
+        @Valid @RequestBody UserIdDto userIdDto
     ) {
         Long userId = principal.getId();
-        String requesterAccountId = accountIdDto.getAccountId();
+        Long requesterUserId = userIdDto.toLong();
 
-        declineFriendRequestService.doService(userId, requesterAccountId);
+        declineFriendRequestService.doService(userId, requesterUserId);
 
         return ResponseEntity.ok().body("거절 완료");
     }
@@ -99,12 +99,12 @@ public class FriendshipController {
     @DeleteMapping("/unfriend")
     public ResponseEntity<String> deleteFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
-        @Valid @RequestBody AccountIdDto accountIdDto
+        @Valid @RequestBody UserIdDto userIdDto
     ) {
         Long userId = principal.getId();
-        String friendAccountId = accountIdDto.getAccountId();
+        Long friendUserId = userIdDto.toLong();
 
-        unfriendService.doService(userId, friendAccountId);
+        unfriendService.doService(userId, friendUserId);
         return ResponseEntity.ok().body("삭제 완료");
     }
 

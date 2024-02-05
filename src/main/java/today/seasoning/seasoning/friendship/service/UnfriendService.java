@@ -18,8 +18,8 @@ public class UnfriendService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
 
-    public void doService(Long userId, String friendAccountId) {
-        User friend = userRepository.findByAccountId(friendAccountId)
+    public void doService(Long userId, Long friendUserId) {
+        User friend = userRepository.findById(friendUserId)
             .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "회원 조회 실패"));
 
         deleteFriendship(userId, friend.getId());
