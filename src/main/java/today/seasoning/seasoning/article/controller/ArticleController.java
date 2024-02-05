@@ -17,17 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.article.dto.FindArticleResult;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
+import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
 import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
-import today.seasoning.seasoning.article.dto.RegisterArticleCommand;
-import today.seasoning.seasoning.article.dto.RegisterArticleDto;
+import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleCommand;
 import today.seasoning.seasoning.article.dto.UpdateArticleDto;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
 import today.seasoning.seasoning.article.service.DeleteArticleService;
 import today.seasoning.seasoning.article.service.FindArticleService;
 import today.seasoning.seasoning.article.service.FindCollageService;
-import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
 import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
 import today.seasoning.seasoning.article.service.FindMyFriendsArticlesService;
@@ -52,19 +51,13 @@ public class ArticleController {
 	private final FindMyFriendsArticlesService findMyFriendsArticlesService;
 
 	@PostMapping
-	public ResponseEntity<String> registerArticle(@AuthenticationPrincipal UserPrincipal principal,
+	public ResponseEntity<String> registerArticle(
+		@AuthenticationPrincipal UserPrincipal principal,
 		@RequestPart(name = "images", required = false) List<MultipartFile> images,
-		@RequestPart("request") @Valid RegisterArticleDto registerArticleDto) {
-
-		RegisterArticleCommand command = new RegisterArticleCommand(principal.getId(),
-			registerArticleDto.getPublished(),
-			registerArticleDto.getContents(),
-			images);
-
-		Long articleId = registerArticleService.doRegister(command);
-
-		String stringArticleId = TsidUtil.toString(articleId);
-		return ResponseEntity.ok(stringArticleId);
+		@RequestPart("request") @Valid RegisterArticleRequest request
+	) {
+		Long articleId = registerArticleService.doRegister(request.buildCommand(principal, images));
+		return ResponseEntity.ok(TsidUtil.toString(articleId));
 	}
 
 	@GetMapping("/{stringArticleId}")
@@ -86,7 +79,9 @@ public class ArticleController {
 		@RequestPart("request") @Valid UpdateArticleDto updateArticleDto,
 		@PathVariable String stringArticleId) {
 
-		UpdateArticleCommand command = new UpdateArticleCommand(userPrincipal.getId(),
+		UpdateArticleCommand command = new UpdateArticleCommand(
+			updateArticleDto.getImageModified(),
+			userPrincipal.getId(),
 			TsidUtil.toLong(stringArticleId),
 			updateArticleDto.getPublished(),
 			updateArticleDto.getContents(),
