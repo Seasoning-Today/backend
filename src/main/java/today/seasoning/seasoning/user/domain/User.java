@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import today.seasoning.seasoning.common.BaseTimeEntity;
+import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.enums.LoginType;
 
 @Entity
@@ -52,10 +53,18 @@ public class User extends BaseTimeEntity {
         this.role = Role.USER;
     }
 
-    public void updateProfile(String accountId, String nickname, String profileImageFileName, String profileImageUrl) {
-        this.accountId = accountId;
+    public void updateProfile(String nickname, String accountId) {
         this.nickname = nickname;
-        this.profileImageFilename = profileImageFileName;
-        this.profileImageUrl = profileImageUrl;
+        this.accountId = accountId;
+    }
+
+    public void removeProfileImage() {
+        this.profileImageUrl = null;
+        this.profileImageFilename = null;
+    }
+
+    public void changeProfileImage(UploadFileInfo uploadFile) {
+        this.profileImageFilename = uploadFile.getFilename();
+        this.profileImageUrl = uploadFile.getUrl();
     }
 }

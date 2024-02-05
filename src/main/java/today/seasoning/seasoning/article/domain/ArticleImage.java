@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import today.seasoning.seasoning.common.BaseTimeEntity;
+import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.util.TsidUtil;
 
 @Entity
@@ -42,11 +43,7 @@ public class ArticleImage extends BaseTimeEntity {
 		this.sequence = sequence;
 	}
 
-	public ArticleImage(Long id, Article article, String filename, String url, int sequence) {
-		this.id = id;
-		this.article = article;
-		this.filename = filename;
-		this.url = url;
-		this.sequence = sequence;
+	public static ArticleImage build(Article article, UploadFileInfo image, int sequence) {
+		return new ArticleImage(article, image.getFilename(), image.getUrl(), sequence);
 	}
 }

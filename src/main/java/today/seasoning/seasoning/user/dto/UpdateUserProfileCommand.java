@@ -8,12 +8,14 @@ import today.seasoning.seasoning.user.domain.Nickname;
 @Getter
 public class UpdateUserProfileCommand {
 
+	private final boolean imageModified;
 	private final long userId;
 	private final AccountId accountId;
 	private final Nickname nickname;
 	private final MultipartFile profileImage;
 
-	public UpdateUserProfileCommand(long userId, String accountId, String nickname, MultipartFile profileImage) {
+	public UpdateUserProfileCommand(boolean imageModified, long userId, String accountId, String nickname, MultipartFile profileImage) {
+		this.imageModified = imageModified;
 		this.userId = userId;
 		this.accountId = new AccountId(accountId);
 		this.nickname = new Nickname(nickname);

@@ -1,7 +1,7 @@
 package today.seasoning.seasoning.article.service;
 
-import com.github.f4b6a3.tsid.TsidCreator;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,6 @@ import today.seasoning.seasoning.article.dto.UpdateArticleCommand;
 import today.seasoning.seasoning.common.aws.S3Service;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.exception.CustomException;
-import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.solarterm.service.SolarTermService;
 
 @Service
@@ -36,6 +35,18 @@ public class UpdateArticleService {
         Article article = articleRepository.findById(command.getArticleId())
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
 
+        checkRequestValid(article, command);
+
+        article.update(command.isPublished(), command.getContents());
+
+        if (command.isImageModified()) {
+            Stream<String> oldImageFilenames = article.getArticleImages().stream().map(ArticleImage::getFilename);
+            updateArticleImages(article, command.getImages());
+            oldImageFilenames.forEach(s3Service::deleteFile);
+        }
+    }
+
+    private void checkRequestValid(Article article, UpdateArticleCommand command) {
         solarTermService.findRecordSolarTerm()
             .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
 
@@ -43,51 +54,27 @@ public class UpdateArticleService {
         if (!ownerId.equals(command.getUserId())) {
             throw new CustomException(HttpStatus.FORBIDDEN, "권한 없음");
         }
-
-        deleteOldImages(article.getArticleImages());
-
-        uploadAndRegisterArticleImages(article, command.getImages());
-
-        updateArticle(article, command);
     }
 
-    private void deleteOldImages(List<ArticleImage> articleImages) {
-        articleImages.stream()
-            .map(ArticleImage::getFilename)
-            .forEach(s3Service::deleteFile);
-        articleImages.clear();
-    }
+    private void updateArticleImages(Article article, List<MultipartFile> images) {
+        article.getArticleImages().clear();
 
-    private void uploadAndRegisterArticleImages(Article article, List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) {
+            return;
+        }
+
         if (images.size() > ARTICLE_IMAGES_LIMIT) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
         }
 
-        for (int sequence = 0; sequence < images.size(); sequence++) {
-            MultipartFile image = images.get(sequence);
-            UploadFileInfo uploadFileInfo = uploadImage(image);
-            registerArticleImage(article, uploadFileInfo, sequence + 1);
+        int sequence = 1;
+        for (MultipartFile image : images) {
+            if (image == null || image.isEmpty()) {
+                continue;
+            }
+            UploadFileInfo fileInfo = s3Service.uploadFile(image);
+            ArticleImage articleImage = ArticleImage.build(article, fileInfo, sequence++);
+            articleImageRepository.save(articleImage);
         }
-    }
-
-    private UploadFileInfo uploadImage(MultipartFile image) {
-        String uid = TsidCreator.getTsid().encode(62);
-        String uploadFileName = "images/article/" + uid + "/" + image.getOriginalFilename();
-        String url = s3Service.uploadFile(image, uploadFileName);
-        return new UploadFileInfo(uploadFileName, url);
-    }
-
-    private void registerArticleImage(Article article, UploadFileInfo fileInfo, int sequence) {
-        ArticleImage articleImage = new ArticleImage(TsidUtil.createLong(),
-            article,
-            fileInfo.getFilename(),
-            fileInfo.getUrl(),
-            sequence);
-        articleImageRepository.save(articleImage);
-    }
-
-    private void updateArticle(Article article, UpdateArticleCommand command) {
-        article.update(command.isPublished(), command.getContents());
-        articleRepository.save(article);
     }
 }

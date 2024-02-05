@@ -12,8 +12,7 @@ public class RegisterArticleCommand {
 	private final String contents;
 	private final List<MultipartFile> images;
 
-	public RegisterArticleCommand(Long userId, boolean published, String contents,
-		List<MultipartFile> images) {
+	public RegisterArticleCommand(Long userId, boolean published, String contents, List<MultipartFile> images) {
 		this.userId = userId;
 		this.published = published;
 		this.contents = contents;

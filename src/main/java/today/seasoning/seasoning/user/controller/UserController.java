@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.common.UserPrincipal;
 import today.seasoning.seasoning.user.domain.AccountId;
-import today.seasoning.seasoning.user.dto.UpdateUserProfileCommand;
-import today.seasoning.seasoning.user.dto.UpdateUserProfileDto;
+import today.seasoning.seasoning.user.dto.UpdateUserProfileRequest;
 import today.seasoning.seasoning.user.dto.UserProfileDto;
 import today.seasoning.seasoning.user.service.DeleteUserService;
 import today.seasoning.seasoning.user.service.FindUserProfileService;
@@ -43,18 +42,11 @@ public class UserController {
     // 프로필 수정
     @PutMapping("/profile")
     public ResponseEntity<Void> updateUserProfile(
-        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @AuthenticationPrincipal UserPrincipal principal,
         @RequestPart(name = "image", required = false) MultipartFile profileImage,
-        @RequestPart(name = "request") @Valid UpdateUserProfileDto dto
+        @RequestPart(name = "request") @Valid UpdateUserProfileRequest request
     ) {
-        UpdateUserProfileCommand command = new UpdateUserProfileCommand(
-            userPrincipal.getId(),
-            dto.getAccountId(),
-            dto.getNickname(),
-            profileImage);
-
-        updateUserProfile.doUpdate(command);
-
+        updateUserProfile.doUpdate(request.buildCommand(principal, profileImage));
         return ResponseEntity.ok().build();
     }
 
