@@ -40,7 +40,7 @@ public class UpdateUserProfileService {
     private void changeProfileImage(User user, MultipartFile image) {
         String currentImageFilename = user.getProfileImageFilename();
 
-        if (image.isEmpty()) {
+        if (image == null || image.isEmpty()) {
             user.removeProfileImage();
         } else {
             UploadFileInfo uploadFileInfo = s3Service.uploadFile(image);
