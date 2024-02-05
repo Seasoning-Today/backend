@@ -1,13 +1,11 @@
 package today.seasoning.seasoning.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import today.seasoning.seasoning.article.domain.ArticleImageRepository;
 import today.seasoning.seasoning.common.aws.S3Service;
-import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
@@ -21,8 +19,7 @@ public class DeleteUserService {
     private final ArticleImageRepository articleImageRepository;
 
     public void doService(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "User Not Found"));
+        User user = userRepository.findByIdOrElseThrow(userId);
 
         // Amazon S3 파일 삭제 : 프로필 사진
         if(StringUtils.hasLength(user.getProfileImageFilename())) {

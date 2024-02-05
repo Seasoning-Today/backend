@@ -46,7 +46,7 @@ public class RegisterArticleService {
     }
 
     private Article createArticle(RegisterArticleCommand command) {
-        User user = userRepository.findById(command.getUserId()).get();
+        User user = userRepository.findByIdOrElseThrow(command.getUserId());
 
         SolarTerm solarTerm = solarTermService.findRecordSolarTerm()
             .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));

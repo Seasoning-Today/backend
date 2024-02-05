@@ -23,7 +23,7 @@ public class UpdateUserProfileService {
 
     @Transactional
     public void doUpdate(UpdateUserProfileCommand command) {
-        User user = userRepository.findById(command.getUserId()).get();
+        User user = userRepository.findByIdOrElseThrow(command.getUserId());
         String oldProfileFilename = user.getProfileImageFilename();
 
         verifyAccountId(command, user.getAccountId());

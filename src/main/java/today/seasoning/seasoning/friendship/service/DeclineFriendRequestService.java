@@ -19,8 +19,7 @@ public class DeclineFriendRequestService {
     private final FriendRequestRepository friendRequestRepository;
 
     public void doService(Long userId, Long requesterUserId) {
-        User requester = userRepository.findById(requesterUserId)
-            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "상대방 조회 실패"));
+        User requester = userRepository.findByIdOrElseThrow(requesterUserId);
 
         if (!friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), userId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "신청 내역 없음");

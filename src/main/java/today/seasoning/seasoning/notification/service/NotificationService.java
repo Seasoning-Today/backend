@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.notification.domain.Notification;
 import today.seasoning.seasoning.notification.domain.NotificationRepository;
 import today.seasoning.seasoning.notification.domain.NotificationType;
@@ -26,7 +24,7 @@ public class NotificationService {
 	private final NotificationRepository notificationRepository;
 
 	public void registerNotification(Long receiveUserId, NotificationType type, String message) {
-		User user = findUserOrThrow(receiveUserId);
+		User user = userRepository.findByIdOrElseThrow(receiveUserId);
 
 		Notification notification = Notification.create(type, user, message);
 		notificationRepository.save(notification);
@@ -57,11 +55,6 @@ public class NotificationService {
 			.forEach(user -> registerNotification(user.getId(),
 				NotificationType.ARTICLE_OPEN,
 				String.valueOf(term)));
-	}
-
-	private User findUserOrThrow(Long userId) {
-		return userRepository.findById(userId)
-			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "회원 조회 실패"));
 	}
 
 	private void markNotificationsAsRead(List<Notification> sentNotificationList) {
