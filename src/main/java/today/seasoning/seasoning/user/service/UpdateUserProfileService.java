@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.common.aws.S3Service;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
@@ -24,27 +25,32 @@ public class UpdateUserProfileService {
     @Transactional
     public void doUpdate(UpdateUserProfileCommand command) {
         User user = userRepository.findByIdOrElseThrow(command.getUserId());
-        String oldProfileFilename = user.getProfileImageFilename();
+        String nickname = command.getNickname();
+        String accountId = command.getAccountId();
 
-        verifyAccountId(command, user.getAccountId());
+        if (!user.getAccountId().equals(accountId) && userRepository.existsByAccountId(accountId)) {
+            throw new CustomException(HttpStatus.CONFLICT, "아이디 중복");
+        }
+        user.updateProfile(nickname, accountId);
 
-        UploadFileInfo uploadFileInfo = uploadProfileImage(command.getProfileImage());
-
-        user.updateProfile(command.getAccountId(),
-            command.getNickname(),
-            uploadFileInfo.getFilename(),
-            uploadFileInfo.getUrl());
-
-        userRepository.save(user);
-
-        s3Service.deleteFile(oldProfileFilename);
+        if (command.isImageModified()) {
+            changeProfileImage(user, command.getProfileImage());
+        }
     }
 
-    private void verifyAccountId(UpdateUserProfileCommand command, String currentAccountId) {
-        String newAccountId = command.getAccountId();
+    private void changeProfileImage(User user, MultipartFile image) {
+        String currentImageFilename = user.getProfileImageFilename();
 
-        if (!newAccountId.equals(currentAccountId) && userRepository.existsByAccountId(newAccountId)) {
-            throw new CustomException(HttpStatus.CONFLICT, "아이디 중복");
+        if (image.isEmpty()) {
+            user.removeProfileImage();
+        } else {
+            UploadFileInfo uploadFile = uploadProfileImage(image);
+            user.changeProfileImage(uploadFile);
+        }
+
+        // 기존에 프로필 이미지가 존재한 경우, 이를 삭제
+        if (StringUtils.hasLength(currentImageFilename)) {
+            s3Service.deleteFile(currentImageFilename);
         }
     }
 

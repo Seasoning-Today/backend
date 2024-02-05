@@ -48,6 +48,7 @@ public class UserController {
         @RequestPart(name = "request") @Valid UpdateUserProfileDto dto
     ) {
         UpdateUserProfileCommand command = new UpdateUserProfileCommand(
+            dto.getImageModified(),
             userPrincipal.getId(),
             dto.getAccountId(),
             dto.getNickname(),
