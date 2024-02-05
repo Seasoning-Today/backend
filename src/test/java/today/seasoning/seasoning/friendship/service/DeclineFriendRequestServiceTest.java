@@ -36,25 +36,25 @@ class DeclineFriendRequestServiceTest {
     @DisplayName("성공")
     void success() {
         //given : 상대방이 조회되고, 상대로부터 나에게 온 친구 신청 내역이 존재하면
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.of(requester));
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(true);
 
         //when & then : 예외가 발생하지 않는다
-        assertDoesNotThrow(() -> declineFriendRequestService.doService(user.getId(), requester.getAccountId()));
+        assertDoesNotThrow(() -> declineFriendRequestService.doService(user.getId(), requester.getId()));
     }
 
     @Test
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByRequesterNotFound() {
         //given : 아이디에 해당하는 상대방이 존재하지 않으면
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.empty());
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), requester.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -64,15 +64,15 @@ class DeclineFriendRequestServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(false);
 
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.of(requester));
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), requester.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
     }
 
-    private void assertFailedValidation(Long userId, String requesterAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> declineFriendRequestService.doService(userId, requesterAccountId))
+    private void assertFailedValidation(Long userId, Long requesterUserId, HttpStatus httpStatus) {
+        assertThatThrownBy(() -> declineFriendRequestService.doService(userId, requesterUserId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }

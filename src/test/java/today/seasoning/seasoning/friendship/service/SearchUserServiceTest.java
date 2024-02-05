@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import today.seasoning.seasoning.common.enums.FriendshipStatus;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.exception.CustomException;
+import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.friendship.dto.SearchUserResult;
@@ -140,8 +141,8 @@ class SearchUserServiceTest {
     }
 
     private void assertSearchUserResult(SearchUserResult result, User target, FriendshipStatus friendshipStatus) {
+        softAssertions.assertThat(TsidUtil.toLong(result.getId())).isEqualTo(target.getId());
         softAssertions.assertThat(result.getNickname()).isEqualTo(target.getNickname());
-        softAssertions.assertThat(result.getAccountId()).isEqualTo(target.getAccountId());
         softAssertions.assertThat(result.getImage()).isEqualTo(target.getProfileImageUrl());
         softAssertions.assertThat(result.getFriendshipStatus()).isEqualTo(friendshipStatus);
     }

@@ -43,7 +43,7 @@ class UnfriendServiceTest {
     @DisplayName("성공")
     void test() {
         //given : 아이디에 해당하는 사용자가 존재하고, 해당 사용자와 회원간의 친구 관계가 양방향으로 존재하는 경우
-        BDDMockito.given(userRepository.findByAccountId(friend.getAccountId()))
+        BDDMockito.given(userRepository.findById(friend.getId()))
             .willReturn(Optional.of(friend));
 
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(user.getId(), friend.getId()))
@@ -53,18 +53,18 @@ class UnfriendServiceTest {
             .willReturn(Optional.of(friendToUserFriendship));
 
         //when && then : 예외가 발생하지 않는다
-        Assertions.assertDoesNotThrow(() -> unfriendService.doService(user.getId(), friend.getAccountId()));
+        Assertions.assertDoesNotThrow(() -> unfriendService.doService(user.getId(), friend.getId()));
     }
 
     @Test
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByFriendNotFound() {
         //given : 아이디에 해당하는 사용자가 존재하지 않으면
-        given(userRepository.findByAccountId(friend.getAccountId()))
+        given(userRepository.findById(friend.getId()))
             .willReturn(Optional.empty());
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), friend.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -77,11 +77,11 @@ class UnfriendServiceTest {
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(friend.getId(), user.getId()))
             .willReturn(Optional.of(friendToUserFriendship));
 
-        BDDMockito.given(userRepository.findByAccountId(friend.getAccountId()))
+        BDDMockito.given(userRepository.findById(friend.getId()))
             .willReturn(Optional.of(friend));
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), friend.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -94,15 +94,15 @@ class UnfriendServiceTest {
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(user.getId(), friend.getId()))
             .willReturn(Optional.of(userToFriendFriendship));
 
-        BDDMockito.given(userRepository.findByAccountId(friend.getAccountId()))
+        BDDMockito.given(userRepository.findById(friend.getId()))
             .willReturn(Optional.of(friend));
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), friend.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);
     }
 
-    private void assertFailedValidation(Long userId, String friendAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> unfriendService.doService(userId, friendAccountId))
+    private void assertFailedValidation(Long userId, Long friendUserId, HttpStatus httpStatus) {
+        assertThatThrownBy(() -> unfriendService.doService(userId, friendUserId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }

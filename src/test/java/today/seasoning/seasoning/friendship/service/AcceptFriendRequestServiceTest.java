@@ -50,14 +50,14 @@ class AcceptFriendRequestServiceTest {
     @DisplayName("성공")
     void success() {
         //given : 아이디로 상대방이 조회되고, 상대방이 나에게 친구 요청한 경우
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.of(requester));
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(true);
 
         //when & then : 친구 수락 시, 예외가 발생하지 않으며
-        assertDoesNotThrow(() -> acceptFriendRequestService.doService(user.getId(), requester.getAccountId()));
+        assertDoesNotThrow(() -> acceptFriendRequestService.doService(user.getId(), requester.getId()));
         // 서로의 친구 요청 내역이 삭제되어야 한다
         verify(friendRequestRepository).deleteByFromUserIdAndToUserId(requester.getId(), user.getId());
         verify(friendRequestRepository).deleteByFromUserIdAndToUserId(user.getId(), requester.getId());
@@ -67,11 +67,11 @@ class AcceptFriendRequestServiceTest {
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByRequesterNotFound() {
         //given : 아이디에 해당하는 상대방이 존재하지 않으면
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.empty());
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), requester.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -81,15 +81,15 @@ class AcceptFriendRequestServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(false);
 
-        given(userRepository.findByAccountId(requester.getAccountId()))
+        given(userRepository.findById(requester.getId()))
             .willReturn(Optional.of(requester));
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(user.getId(), requester.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
     }
 
-    private void assertFailedValidation(Long userId, String requesterAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> acceptFriendRequestService.doService(userId, requesterAccountId))
+    private void assertFailedValidation(Long userId, Long requesterUserId, HttpStatus httpStatus) {
+        assertThatThrownBy(() -> acceptFriendRequestService.doService(userId, requesterUserId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }

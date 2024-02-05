@@ -49,38 +49,38 @@ class SendFriendRequestServiceTest {
     @DisplayName("성공")
     void success() {
         //given : 상대방이 존재하고, 친구 신청 내역이 없으면
-        given(userRepository.findByAccountId(requestee.getAccountId()))
+        given(userRepository.findById(requestee.getId()))
             .willReturn(Optional.of(requestee));
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
             .willReturn(false);
 
         //when & then : 예외가 발생하지 않는다
-        assertDoesNotThrow(() -> sendFriendRequestService.doService(requester.getId(), requestee.getAccountId()));
+        assertDoesNotThrow(() -> sendFriendRequestService.doService(requester.getId(), requestee.getId()));
     }
 
     @Test
     @DisplayName("실패 - 상대방 조회 실패")
     void failedByRequesteeNotFound() {
         //given : 아이디에 해당하는 회원이 없는 경우
-        given(userRepository.findByAccountId(requestee.getAccountId()))
+        given(userRepository.findById(requestee.getId()))
             .willReturn(Optional.empty());
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.BAD_REQUEST);
+        assertFailedValidation(requester.getId(), requestee.getId(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
     @DisplayName("실패 - 자신에게 친구 신청")
     void failedBySelfRequest() {
         //given : 자신의 아이디로 친구 신청한 경우
-        String accountId = requester.getAccountId();
+        Long userId = requester.getId();
 
-        given(userRepository.findByAccountId(accountId))
+        given(userRepository.findById(userId))
             .willReturn(Optional.of(requester));
 
         //when & then : Bad Request 예외가 발생한다
-        assertFailedValidation(requester.getId(), accountId, HttpStatus.BAD_REQUEST);
+        assertFailedValidation(requester.getId(), userId, HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -90,11 +90,11 @@ class SendFriendRequestServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
             .willReturn(true);
 
-        given(userRepository.findByAccountId(requestee.getAccountId()))
+        given(userRepository.findById(requestee.getId()))
             .willReturn(Optional.of(requestee));
 
         //when & then : 409 Conflict 예외가 발생한다
-        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.CONFLICT);
+        assertFailedValidation(requester.getId(), requestee.getId(), HttpStatus.CONFLICT);
     }
 
     @Test
@@ -104,18 +104,18 @@ class SendFriendRequestServiceTest {
         given(friendshipRepository.existsByUserIdAndFriendId(requester.getId(), requestee.getId()))
             .willReturn(true);
 
-        given(userRepository.findByAccountId(requestee.getAccountId()))
+        given(userRepository.findById(requestee.getId()))
             .willReturn(Optional.of(requestee));
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), requestee.getId()))
             .willReturn(false);
 
         //when & then : 409 Conflict 예외가 발생한다
-        assertFailedValidation(requester.getId(), requestee.getAccountId(), HttpStatus.CONFLICT);
+        assertFailedValidation(requester.getId(), requestee.getId(), HttpStatus.CONFLICT);
     }
 
-    private void assertFailedValidation(Long requesterId, String requesteeAccountId, HttpStatus httpStatus) {
-        assertThatThrownBy(() -> sendFriendRequestService.doService(requesterId, requesteeAccountId))
+    private void assertFailedValidation(Long requesterId, Long requesteeUserId, HttpStatus httpStatus) {
+        assertThatThrownBy(() -> sendFriendRequestService.doService(requesterId, requesteeUserId))
             .isInstanceOf(CustomException.class)
             .hasFieldOrPropertyWithValue("httpStatus", httpStatus);
     }

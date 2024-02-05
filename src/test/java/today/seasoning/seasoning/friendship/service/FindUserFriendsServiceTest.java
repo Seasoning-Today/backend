@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import today.seasoning.seasoning.common.enums.LoginType;
+import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.friendship.dto.FindUserFriendsResult;
 import today.seasoning.seasoning.user.domain.User;
@@ -33,9 +34,9 @@ class FindUserFriendsServiceTest {
         User friend3 = new User("friend3", "https://test/friend3.jpg", "friend3@email.com", LoginType.KAKAO);
 
         List<FindUserFriendsResult> expectedResult = List.of(
-            new FindUserFriendsResult(friend1.getNickname(), friend1.getAccountId(), friend1.getProfileImageUrl()),
-            new FindUserFriendsResult(friend2.getNickname(), friend2.getAccountId(), friend2.getProfileImageUrl()),
-            new FindUserFriendsResult(friend3.getNickname(), friend3.getAccountId(), friend3.getProfileImageUrl())
+            new FindUserFriendsResult(TsidUtil.toString(friend1.getId()), friend1.getNickname(), friend1.getAccountId(), friend1.getProfileImageUrl()),
+            new FindUserFriendsResult(TsidUtil.toString(friend2.getId()), friend2.getNickname(), friend2.getAccountId(), friend2.getProfileImageUrl()),
+            new FindUserFriendsResult(TsidUtil.toString(friend3.getId()), friend3.getNickname(), friend3.getAccountId(), friend3.getProfileImageUrl())
         );
 
         BDDMockito.given(friendshipRepository.findFriendsByUserId(user.getId()))
