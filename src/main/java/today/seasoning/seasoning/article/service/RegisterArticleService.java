@@ -50,6 +50,10 @@ public class RegisterArticleService {
         SolarTerm solarTerm = solarTermService.findRecordSolarTerm()
             .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
 
+        if (articleRepository.checkArticleRegistered(user.getId(), solarTerm.getDate().getYear(), solarTerm.getSequence())) {
+            throw new CustomException(HttpStatus.CONFLICT, "이미 등록되었습니다.");
+        }
+
         Article article = new Article(user, command.isPublished(), solarTerm.getDate().getYear(),
             solarTerm.getSequence(), command.getContents());
 
