@@ -16,7 +16,7 @@ public class FindUserProfileService {
 	// 프로필 조회
 	@Transactional(readOnly = true)
 	public UserProfileDto findUserProfile(Long userId) {
-		User user = userRepository.findById(userId).get();
+		User user = userRepository.findByIdOrElseThrow(userId);
 		return UserProfileDto.build(user);
 	}
 }

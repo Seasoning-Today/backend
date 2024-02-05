@@ -43,8 +43,8 @@ class UnfriendServiceTest {
     @DisplayName("성공")
     void test() {
         //given : 아이디에 해당하는 사용자가 존재하고, 해당 사용자와 회원간의 친구 관계가 양방향으로 존재하는 경우
-        BDDMockito.given(userRepository.findById(friend.getId()))
-            .willReturn(Optional.of(friend));
+        BDDMockito.given(userRepository.findByIdOrElseThrow(friend.getId()))
+            .willReturn(friend);
 
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(user.getId(), friend.getId()))
             .willReturn(Optional.of(userToFriendFriendship));
@@ -60,8 +60,8 @@ class UnfriendServiceTest {
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByFriendNotFound() {
         //given : 아이디에 해당하는 사용자가 존재하지 않으면
-        given(userRepository.findById(friend.getId()))
-            .willReturn(Optional.empty());
+        given(userRepository.findByIdOrElseThrow(friend.getId()))
+            .willThrow(new CustomException(HttpStatus.BAD_REQUEST, "User Not Found"));
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);
@@ -77,8 +77,8 @@ class UnfriendServiceTest {
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(friend.getId(), user.getId()))
             .willReturn(Optional.of(friendToUserFriendship));
 
-        BDDMockito.given(userRepository.findById(friend.getId()))
-            .willReturn(Optional.of(friend));
+        BDDMockito.given(userRepository.findByIdOrElseThrow(friend.getId()))
+            .willReturn(friend);
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);
@@ -94,8 +94,8 @@ class UnfriendServiceTest {
         BDDMockito.given(friendshipRepository.findByUserIdAndFriendId(user.getId(), friend.getId()))
             .willReturn(Optional.of(userToFriendFriendship));
 
-        BDDMockito.given(userRepository.findById(friend.getId()))
-            .willReturn(Optional.of(friend));
+        BDDMockito.given(userRepository.findByIdOrElseThrow(friend.getId()))
+            .willReturn(friend);
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), friend.getId(), HttpStatus.BAD_REQUEST);

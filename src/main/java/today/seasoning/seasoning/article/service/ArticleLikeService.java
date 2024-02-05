@@ -29,7 +29,7 @@ public class ArticleLikeService {
 	private final NotificationService notificationService;
 
 	public void doLike(Long userId, Long articleId) {
-		User user = userRepository.findById(userId).get();
+		User user = userRepository.findByIdOrElseThrow(userId);
 
 		Article article = findArticleOrThrow(articleId);
 
