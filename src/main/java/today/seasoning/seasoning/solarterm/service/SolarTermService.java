@@ -55,7 +55,7 @@ public class SolarTermService {
         LocalDate today = LocalDate.now();
 
         for (int i = 0; i + 1 < solarTerms.size(); i++) {
-            if (!solarTerms.get(i).getDate().isBefore(today)) {
+            if (!today.isBefore(solarTerms.get(i).getDate()) && today.isBefore(solarTerms.get(i + 1).getDate())) {
                 currentSolarTerm = solarTerms.get(i);
                 nextSolarTerm = solarTerms.get(i + 1);
 
