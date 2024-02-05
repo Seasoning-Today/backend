@@ -2,6 +2,7 @@ package today.seasoning.seasoning.common.aws;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.github.f4b6a3.tsid.TsidCreator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,14 +24,16 @@ public class S3Service {
 	@Value("${cloud.aws.cloudfront.distribution.url}")
 	private String cloudfrontUrl;
 
-	public String uploadFile(MultipartFile multipartFile, String filename) {
+	public UploadFileInfo uploadFile(MultipartFile multipartFile) {
+		String filename = TsidCreator.getTsid().encode(62) + "/" + multipartFile.getOriginalFilename();
+
 		ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentLength(multipartFile.getSize());
 		metadata.setContentType(multipartFile.getContentType());
 
 		try {
 			amazonS3.putObject(s3BucketName, filename, multipartFile.getInputStream(), metadata);
-			return cloudfrontUrl.concat(filename);
+			return new UploadFileInfo(filename, cloudfrontUrl.concat(filename));
 		} catch (Exception e) {
 			log.error("Uploading File Failed : {} - {}", filename, e.getMessage());
 			throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 실패");

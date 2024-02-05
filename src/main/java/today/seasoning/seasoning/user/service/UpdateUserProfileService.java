@@ -1,6 +1,5 @@
 package today.seasoning.seasoning.user.service;
 
-import com.github.f4b6a3.tsid.TsidCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -44,23 +43,13 @@ public class UpdateUserProfileService {
         if (image.isEmpty()) {
             user.removeProfileImage();
         } else {
-            UploadFileInfo uploadFile = uploadProfileImage(image);
-            user.changeProfileImage(uploadFile);
+            UploadFileInfo uploadFileInfo = s3Service.uploadFile(image);
+            user.changeProfileImage(uploadFileInfo);
         }
 
         // 기존에 프로필 이미지가 존재한 경우, 이를 삭제
         if (StringUtils.hasLength(currentImageFilename)) {
             s3Service.deleteFile(currentImageFilename);
         }
-    }
-
-    private UploadFileInfo uploadProfileImage(MultipartFile profileImage) {
-        String uid = TsidCreator.getTsid().encode(62);
-        String originalFilename = profileImage.getOriginalFilename();
-        String uploadFileName = "user/profile/" + uid + "/" + originalFilename;
-
-        String imageUrl = s3Service.uploadFile(profileImage, uploadFileName);
-
-        return new UploadFileInfo(uploadFileName, imageUrl);
     }
 }

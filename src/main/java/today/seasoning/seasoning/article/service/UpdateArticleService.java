@@ -1,6 +1,5 @@
 package today.seasoning.seasoning.article.service;
 
-import com.github.f4b6a3.tsid.TsidCreator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,16 +64,9 @@ public class UpdateArticleService {
 
         for (int sequence = 0; sequence < images.size(); sequence++) {
             MultipartFile image = images.get(sequence);
-            UploadFileInfo uploadFileInfo = uploadImage(image);
+            UploadFileInfo uploadFileInfo = s3Service.uploadFile(image);
             registerArticleImage(article, uploadFileInfo, sequence + 1);
         }
-    }
-
-    private UploadFileInfo uploadImage(MultipartFile image) {
-        String uid = TsidCreator.getTsid().encode(62);
-        String uploadFileName = "images/article/" + uid + "/" + image.getOriginalFilename();
-        String url = s3Service.uploadFile(image, uploadFileName);
-        return new UploadFileInfo(uploadFileName, url);
     }
 
     private void registerArticleImage(Article article, UploadFileInfo fileInfo, int sequence) {
