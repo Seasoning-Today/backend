@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
 
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +35,8 @@ class CancelFriendRequestServiceTest {
     @DisplayName("성공")
     void success() {
         //given : 상대방이 존재하고, 내가 상대방에게 친구 신청한 내역이 있으면
-        given(userRepository.findById(requestee.getId()))
-            .willReturn(Optional.of(requestee));
+        given(userRepository.findByIdOrElseThrow(requestee.getId()))
+            .willReturn(requestee);
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(user.getId(), requestee.getId()))
             .willReturn(true);
@@ -50,8 +49,8 @@ class CancelFriendRequestServiceTest {
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByRequesterNotFound() {
         //given : 아이디에 해당하는 상대방이 존재하지 않으면
-        given(userRepository.findById(requestee.getId()))
-            .willReturn(Optional.empty());
+        given(userRepository.findByIdOrElseThrow(requestee.getId()))
+            .willThrow(new CustomException(HttpStatus.BAD_REQUEST, "User Not Found"));
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), requestee.getId(), HttpStatus.BAD_REQUEST);
@@ -64,8 +63,8 @@ class CancelFriendRequestServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(user.getId(), requestee.getId()))
             .willReturn(false);
 
-        given(userRepository.findById(requestee.getId()))
-            .willReturn(Optional.of(requestee));
+        given(userRepository.findByIdOrElseThrow(requestee.getId()))
+            .willReturn(requestee);
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), requestee.getId(), HttpStatus.BAD_REQUEST);

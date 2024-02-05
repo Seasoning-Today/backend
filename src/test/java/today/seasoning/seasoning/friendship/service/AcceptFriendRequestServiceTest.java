@@ -42,16 +42,16 @@ class AcceptFriendRequestServiceTest {
 
     @BeforeEach
     void init() {
-        given(userRepository.findById(user.getId()))
-            .willReturn(Optional.of(user));
+        given(userRepository.findByIdOrElseThrow(user.getId()))
+            .willReturn(user);
     }
 
     @Test
     @DisplayName("성공")
     void success() {
         //given : 아이디로 상대방이 조회되고, 상대방이 나에게 친구 요청한 경우
-        given(userRepository.findById(requester.getId()))
-            .willReturn(Optional.of(requester));
+        given(userRepository.findByIdOrElseThrow(requester.getId()))
+            .willReturn(requester);
 
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(true);
@@ -67,8 +67,8 @@ class AcceptFriendRequestServiceTest {
     @DisplayName("실패 - 상대방 조회 불가")
     void failedByRequesterNotFound() {
         //given : 아이디에 해당하는 상대방이 존재하지 않으면
-        given(userRepository.findById(requester.getId()))
-            .willReturn(Optional.empty());
+        given(userRepository.findByIdOrElseThrow(requester.getId()))
+            .willThrow(new CustomException(HttpStatus.BAD_REQUEST, "User Not Found"));
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
@@ -81,8 +81,8 @@ class AcceptFriendRequestServiceTest {
         given(friendRequestRepository.existsByFromUserIdAndToUserId(requester.getId(), user.getId()))
             .willReturn(false);
 
-        given(userRepository.findById(requester.getId()))
-            .willReturn(Optional.of(requester));
+        given(userRepository.findByIdOrElseThrow(requester.getId()))
+            .willReturn(requester);
 
         //when & then : Bad Request 예외가 발생한다
         assertFailedValidation(user.getId(), requester.getId(), HttpStatus.BAD_REQUEST);
