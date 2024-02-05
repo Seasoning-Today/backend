@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "article", uniqueConstraints = { @UniqueConstraint(columnNames = {"user_id", "created_year", "created_term"})})
 public class Article extends BaseTimeEntity {
 
     @Id

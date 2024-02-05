@@ -12,4 +12,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
 	@Query("SELECT a From Article a WHERE a.user.id = :userId AND a.createdTerm = :term")
 	List<Article> findByUserIdAndTerm(@Param("userId") Long userId, @Param("term") int term);
+
+	@Query("SELECT COUNT(a) > 0 FROM Article a WHERE a.user.id = :userId AND a.createdYear = :year AND a.createdTerm = :term")
+	boolean checkArticleRegistered(@Param("userId") Long userId, @Param("year") int year, @Param("term") int term);
 }
