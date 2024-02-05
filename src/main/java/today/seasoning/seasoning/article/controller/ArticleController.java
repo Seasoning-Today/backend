@@ -21,8 +21,7 @@ import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
 import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
-import today.seasoning.seasoning.article.dto.UpdateArticleCommand;
-import today.seasoning.seasoning.article.dto.UpdateArticleDto;
+import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
 import today.seasoning.seasoning.article.service.DeleteArticleService;
 import today.seasoning.seasoning.article.service.FindArticleService;
@@ -40,140 +39,110 @@ import today.seasoning.seasoning.common.util.TsidUtil;
 @RequestMapping("/article")
 public class ArticleController {
 
-	private final RegisterArticleService registerArticleService;
-	private final FindArticleService findArticleService;
-	private final UpdateArticleService updateArticleService;
-	private final DeleteArticleService deleteArticleService;
-	private final FindMyArticlesByYearService findMyArticlesByYearService;
-	private final FindMyArticlesByTermService findMyArticlesByTermService;
-	private final ArticleLikeService articleLikeService;
-	private final FindCollageService findCollageService;
-	private final FindMyFriendsArticlesService findMyFriendsArticlesService;
+    private final RegisterArticleService registerArticleService;
+    private final FindArticleService findArticleService;
+    private final UpdateArticleService updateArticleService;
+    private final DeleteArticleService deleteArticleService;
+    private final FindMyArticlesByYearService findMyArticlesByYearService;
+    private final FindMyArticlesByTermService findMyArticlesByTermService;
+    private final ArticleLikeService articleLikeService;
+    private final FindCollageService findCollageService;
+    private final FindMyFriendsArticlesService findMyFriendsArticlesService;
 
-	@PostMapping
-	public ResponseEntity<String> registerArticle(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@RequestPart(name = "images", required = false) List<MultipartFile> images,
-		@RequestPart("request") @Valid RegisterArticleRequest request
-	) {
-		Long articleId = registerArticleService.doRegister(request.buildCommand(principal, images));
-		return ResponseEntity.ok(TsidUtil.toString(articleId));
-	}
+    @PostMapping
+    public ResponseEntity<String> registerArticle(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @RequestPart(name = "images", required = false) List<MultipartFile> images,
+        @RequestPart("request") @Valid RegisterArticleRequest request
+    ) {
+        Long articleId = registerArticleService.doRegister(request.buildCommand(principal, images));
+        return ResponseEntity.ok(TsidUtil.toString(articleId));
+    }
 
-	@GetMapping("/{stringArticleId}")
-	public ResponseEntity<FindArticleResult> findArticle(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable String stringArticleId) {
+    @GetMapping("/{articleId}")
+    public ResponseEntity<FindArticleResult> findArticle(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable String articleId
+    ) {
+        FindArticleResult findArticleResult = findArticleService.doFind(principal.getId(), TsidUtil.toLong(articleId));
+        return ResponseEntity.ok(findArticleResult);
+    }
 
-		Long userId = principal.getId();
-		Long articleId = TsidUtil.toLong(stringArticleId);
+    @PutMapping("/{articleId}")
+    public ResponseEntity<Void> updateArticle(@AuthenticationPrincipal UserPrincipal userPrincipal,
+        @RequestPart(name = "images", required = false) List<MultipartFile> images,
+        @RequestPart("request") @Valid UpdateArticleRequest request,
+        @PathVariable String articleId
+    ) {
+        updateArticleService.doUpdate(request.buildCommand(userPrincipal, articleId, images));
+        return ResponseEntity.ok().build();
+    }
 
-		FindArticleResult findArticleResult = findArticleService.doFind(userId, articleId);
+    @DeleteMapping("/{articleId}")
+    public ResponseEntity<Void> deleteArticle(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable String articleId
+    ) {
+        deleteArticleService.doDelete(principal.getId(), TsidUtil.toLong(articleId));
+        return ResponseEntity.ok().build();
+    }
 
-		return ResponseEntity.ok(findArticleResult);
-	}
+    @GetMapping("/list/year/{year}")
+    public ResponseEntity<List<FindMyArticlesByYearResult>> findMyArticlesByYear(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Integer year
+    ) {
+        List<FindMyArticlesByYearResult> result = findMyArticlesByYearService.doFind(principal.getId(), year);
+        return ResponseEntity.ok(result);
+    }
 
-	@PutMapping("/{stringArticleId}")
-	public ResponseEntity<Void> updateArticle(@AuthenticationPrincipal UserPrincipal userPrincipal,
-		@RequestPart(name = "images", required = false) List<MultipartFile> images,
-		@RequestPart("request") @Valid UpdateArticleDto updateArticleDto,
-		@PathVariable String stringArticleId) {
+    @GetMapping("/list/term/{term}")
+    public ResponseEntity<List<FindMyArticlesByTermResult>> findMyArticlesByTerm(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Integer term
+    ) {
+        List<FindMyArticlesByTermResult> result = findMyArticlesByTermService.doFind(principal.getId(), term);
+        return ResponseEntity.ok(result);
+    }
 
-		UpdateArticleCommand command = new UpdateArticleCommand(
-			updateArticleDto.getImageModified(),
-			userPrincipal.getId(),
-			TsidUtil.toLong(stringArticleId),
-			updateArticleDto.getPublished(),
-			updateArticleDto.getContents(),
-			images);
+    @PostMapping("{articleId}/like")
+    public ResponseEntity<Void> likeArticle(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable String articleId
+    ) {
+        articleLikeService.doLike(principal.getId(), TsidUtil.toLong(articleId));
+        return ResponseEntity.ok().build();
+    }
 
-		updateArticleService.doUpdate(command);
+    @DeleteMapping("{articleId}/like")
+    public ResponseEntity<Void> cancelLikeArticle(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable String articleId
+    ) {
+        articleLikeService.cancelLike(principal.getId(), TsidUtil.toLong(articleId));
+        return ResponseEntity.ok().build();
+    }
 
-		return ResponseEntity.ok().build();
-	}
+    @GetMapping("/collage")
+    public ResponseEntity<List<FindCollageResult>> findCollage(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @RequestParam("year") Integer year
+    ) {
+        List<FindCollageResult> collage = findCollageService.doFind(principal.getId(), year);
+        return ResponseEntity.ok(collage);
+    }
 
-	@DeleteMapping("/{stringArticleId}")
-	public ResponseEntity<Void> deleteArticle(@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable String stringArticleId) {
+    @GetMapping("/friends")
+    public ResponseEntity<List<FindMyFriendsArticlesResult>> findMyFriendsArticles(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @RequestParam(name = "lastId", defaultValue = "AzL8n0Y58m7") String lastArticleId,
+        @RequestParam(name = "size", defaultValue = "10") Integer pageSize
+    ) {
+        List<FindMyFriendsArticlesResult> findMyFriendsArticlesResults = findMyFriendsArticlesService.doFind(
+            principal.getId(),
+            TsidUtil.toLong(lastArticleId),
+            pageSize);
 
-		Long userId = principal.getId();
-		Long articleId = TsidUtil.toLong(stringArticleId);
-
-		deleteArticleService.doDelete(userId, articleId);
-
-		return ResponseEntity.ok().build();
-	}
-
-	@GetMapping("/list/year/{year}")
-	public ResponseEntity<List<FindMyArticlesByYearResult>> findMyArticlesByYear(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable Integer year) {
-
-		Long userId = principal.getId();
-
-		List<FindMyArticlesByYearResult> result = findMyArticlesByYearService.doFind(userId, year);
-
-		return ResponseEntity.ok(result);
-	}
-
-	@GetMapping("/list/term/{term}")
-	public ResponseEntity<List<FindMyArticlesByTermResult>> findMyArticlesByTerm(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable Integer term) {
-
-		Long userId = principal.getId();
-
-		List<FindMyArticlesByTermResult> result = findMyArticlesByTermService.doFind(userId, term);
-
-		return ResponseEntity.ok(result);
-	}
-
-	@PostMapping("{articleId}/like")
-	public ResponseEntity<Void> likeArticle(@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable("articleId") String stringArticleId) {
-
-		Long userId = principal.getId();
-		Long articleId = TsidUtil.toLong(stringArticleId);
-
-		articleLikeService.doLike(userId, articleId);
-
-		return ResponseEntity.ok().build();
-	}
-
-	@DeleteMapping("{articleId}/like")
-	public ResponseEntity<Void> cancelLikeArticle(@AuthenticationPrincipal UserPrincipal principal,
-		@PathVariable("articleId") String stringArticleId) {
-
-		Long userId = principal.getId();
-		Long articleId = TsidUtil.toLong(stringArticleId);
-
-		articleLikeService.cancelLike(userId, articleId);
-
-		return ResponseEntity.ok().build();
-	}
-
-	@GetMapping("/collage")
-	public ResponseEntity<List<FindCollageResult>> findCollage(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@RequestParam("year") Integer year) {
-
-		Long userId = principal.getId();
-		List<FindCollageResult> collage = findCollageService.doFind(userId, year);
-		return ResponseEntity.ok(collage);
-	}
-
-	@GetMapping("/friends")
-	public ResponseEntity<List<FindMyFriendsArticlesResult>> findMyFriendsArticles(
-		@AuthenticationPrincipal UserPrincipal principal,
-		@RequestParam(name = "lastId", defaultValue = "AzL8n0Y58m7") String stringArticleId,
-		@RequestParam(name = "size", defaultValue = "10") Integer pageSize) {
-
-		Long userId = principal.getId();
-		Long lastArticleId = TsidUtil.toLong(stringArticleId);
-
-		List<FindMyFriendsArticlesResult> findMyFriendsArticlesResults =
-			findMyFriendsArticlesService.doFind(userId, lastArticleId, pageSize);
-
-		return ResponseEntity.ok(findMyFriendsArticlesResults);
-	}
+        return ResponseEntity.ok(findMyFriendsArticlesResults);
+    }
 }
