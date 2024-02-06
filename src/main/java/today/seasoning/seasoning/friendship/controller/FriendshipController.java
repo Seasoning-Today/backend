@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class FriendshipController {
     private final CancelFriendRequestService cancelFriendRequestService;
     private final DeclineFriendRequestService declineFriendRequestService;
 
-    @RequestMapping("/add")
+    @PostMapping("/add")
     public ResponseEntity<String> requestFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
