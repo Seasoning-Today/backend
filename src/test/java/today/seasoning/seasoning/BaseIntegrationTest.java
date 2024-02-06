@@ -41,7 +41,7 @@ public class BaseIntegrationTest {
     int port;
 
     @BeforeEach
-    void setPort() {
+    void init() {
         // 실제 서블릿 컨테이너 실행을 위한 RANDOM PORT 설정
         RestAssured.port = port;
 
