@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,21 +55,36 @@ public class BaseIntegrationTest {
         }
     }
 
-    public ExtractableResponse<Response> post(String uri, Long userId, JSONObject jsonBody) {
-        String accessToken = JwtUtil.createToken(userId).getAccessToken();
-
+    public ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
         RequestSpecification request = RestAssured
             .given().log().all()
                 .contentType("application/json")
-                .header("Authorization", "Bearer " + accessToken);
+                .header("Authorization", "Bearer " + createAccessToken(userId));
 
         if (jsonBody != null) {
             request.body(jsonBody.toString());
         }
 
         return request
-            .when().post(uri)
+            .when().post(url)
             .then().log().all().extract();
     }
 
+    public ExtractableResponse<Response> get(String url, Long userId) {
+        return get(url, userId, new HashMap<>());
+    }
+
+
+    public ExtractableResponse<Response> get(String url, Long userId, Map<String, Object> params) {
+        return RestAssured
+            .given().log().all()
+                .header("Authorization", "Bearer " + createAccessToken(userId))
+                .params(params)
+            .when().get(url)
+            .then().log().all().extract();
+    }
+
+    private String createAccessToken(Long userId) {
+        return JwtUtil.createToken(userId).getAccessToken();
+    }
 }
