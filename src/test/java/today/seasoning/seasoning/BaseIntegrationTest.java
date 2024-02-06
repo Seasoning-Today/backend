@@ -35,10 +35,10 @@ public class BaseIntegrationTest {
     }
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
-    int port;
+    private int port;
 
     @BeforeEach
     void init() {
@@ -48,14 +48,15 @@ public class BaseIntegrationTest {
         // 모든 테이블 데이터 초기화 (정적 데이터 fortune, solar_term 제외)
         Resource resource = new ClassPathResource("/data/clear.sql");
         try {
-            String sql = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
+            String sql = FileCopyUtils.copyToString(
+                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
             Arrays.stream(sql.split("\n")).forEach(jdbcTemplate::execute);
         } catch (IOException e) {
             throw new RuntimeException("Error reading or executing SQL script: /data/clear.sql", e);
         }
     }
 
-    public ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
+    protected ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
         RequestSpecification request = RestAssured
             .given().log().all()
                 .contentType("application/json")
@@ -70,12 +71,12 @@ public class BaseIntegrationTest {
             .then().log().all().extract();
     }
 
-    public ExtractableResponse<Response> get(String url, Long userId) {
+    protected ExtractableResponse<Response> get(String url, Long userId) {
         return get(url, userId, new HashMap<>());
     }
 
 
-    public ExtractableResponse<Response> get(String url, Long userId, Map<String, Object> params) {
+    protected ExtractableResponse<Response> get(String url, Long userId, Map<String, Object> params) {
         return RestAssured
             .given().log().all()
                 .header("Authorization", "Bearer " + createAccessToken(userId))
@@ -84,7 +85,7 @@ public class BaseIntegrationTest {
             .then().log().all().extract();
     }
 
-    private String createAccessToken(Long userId) {
+    protected String createAccessToken(Long userId) {
         return JwtUtil.createToken(userId).getAccessToken();
     }
 }
