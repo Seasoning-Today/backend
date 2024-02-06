@@ -7,20 +7,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
-import today.seasoning.seasoning.friendship.dto.FindUserFriendsResult;
+import today.seasoning.seasoning.friendship.dto.FindUserFriendsResponse;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class FindUserFriendsService {
+public class FindAllFriendsService {
 
     private final FriendshipRepository friendshipRepository;
 
-    public List<FindUserFriendsResult> doFind(Long userId) {
+    public List<FindUserFriendsResponse> doService(Long userId) {
         return friendshipRepository.findFriendsByUserId(userId)
             .stream()
-            .map(FindUserFriendsResult::build)
+            .map(FindUserFriendsResponse::build)
             .collect(Collectors.toList());
     }
 }

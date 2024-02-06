@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import today.seasoning.seasoning.common.UserPrincipal;
-import today.seasoning.seasoning.friendship.dto.FindUserFriendsResult;
+import today.seasoning.seasoning.friendship.dto.FindUserFriendsResponse;
 import today.seasoning.seasoning.friendship.dto.SearchUserResult;
 import today.seasoning.seasoning.friendship.dto.UserIdDto;
 import today.seasoning.seasoning.friendship.service.AcceptFriendRequestService;
 import today.seasoning.seasoning.friendship.service.CancelFriendRequestService;
 import today.seasoning.seasoning.friendship.service.DeclineFriendRequestService;
-import today.seasoning.seasoning.friendship.service.FindUserFriendsService;
+import today.seasoning.seasoning.friendship.service.FindAllFriendsService;
 import today.seasoning.seasoning.friendship.service.SearchUserService;
 import today.seasoning.seasoning.friendship.service.SendFriendRequestService;
 import today.seasoning.seasoning.friendship.service.UnfriendService;
@@ -32,7 +32,7 @@ public class FriendshipController {
 
     private final UnfriendService unfriendService;
     private final SearchUserService searchUserService;
-    private final FindUserFriendsService findUserFriendsService;
+    private final FindAllFriendsService findAllFriendsService;
     private final SendFriendRequestService sendFriendRequestService;
     private final AcceptFriendRequestService acceptFriendRequestService;
     private final CancelFriendRequestService cancelFriendRequestService;
@@ -52,10 +52,10 @@ public class FriendshipController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<FindUserFriendsResult>> findUserFriends(@AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<List<FindUserFriendsResponse>> findUserFriends(@AuthenticationPrincipal UserPrincipal principal) {
         Long userId = principal.getId();
-        List<FindUserFriendsResult> findUserFriendResults = findUserFriendsService.doFind(userId);
-        return ResponseEntity.ok().body(findUserFriendResults);
+        List<FindUserFriendsResponse> response = findAllFriendsService.doService(userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/add/accept")

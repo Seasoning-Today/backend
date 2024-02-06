@@ -7,15 +7,15 @@ import today.seasoning.seasoning.user.domain.User;
 
 @Getter
 @RequiredArgsConstructor
-public class FindUserFriendsResult {
+public class FindUserFriendsResponse {
 
     private final String id;
     private final String nickname;
     private final String accountId;
     private final String profileImageUrl;
 
-    public static FindUserFriendsResult build(User friend) {
-        return new FindUserFriendsResult(
+    public static FindUserFriendsResponse build(User friend) {
+        return new FindUserFriendsResponse(
             TsidUtil.toString(friend.getId()),
             friend.getNickname(),
             friend.getAccountId(),
