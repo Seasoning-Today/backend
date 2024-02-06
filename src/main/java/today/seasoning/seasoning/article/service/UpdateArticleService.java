@@ -16,6 +16,7 @@ import today.seasoning.seasoning.article.dto.UpdateArticleCommand;
 import today.seasoning.seasoning.common.aws.S3Service;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.exception.CustomException;
+import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.service.SolarTermService;
 
 @Service
@@ -47,8 +48,12 @@ public class UpdateArticleService {
     }
 
     private void checkRequestValid(Article article, UpdateArticleCommand command) {
-        solarTermService.findRecordSolarTerm()
-            .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
+        SolarTerm currentRecordSolarTerm = solarTermService.findRecordSolarTerm()
+            .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "작성 기간이 아닙니다."));
+
+        if (!article.isCreatedAt(currentRecordSolarTerm)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "수정 기간이 아닙니다.");
+        }
 
         Long ownerId = article.getUser().getId();
         if (!ownerId.equals(command.getUserId())) {

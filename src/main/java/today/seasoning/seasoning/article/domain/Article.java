@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
+import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.user.domain.User;
 
 import javax.persistence.*;
@@ -58,5 +59,9 @@ public class Article extends BaseTimeEntity {
     public void update(boolean published, String contents) {
         this.published = published;
         this.contents = contents;
+    }
+
+    public boolean isCreatedAt(SolarTerm solarTerm) {
+        return createdYear == solarTerm.getYear() && createdTerm == solarTerm.getSequence();
     }
 }
