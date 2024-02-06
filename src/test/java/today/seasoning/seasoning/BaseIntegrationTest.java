@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,41 +35,57 @@ public class BaseIntegrationTest {
     }
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
-    int port;
+    private int port;
 
     @BeforeEach
-    void setPort() {
+    void init() {
         // 실제 서블릿 컨테이너 실행을 위한 RANDOM PORT 설정
         RestAssured.port = port;
 
         // 모든 테이블 데이터 초기화 (정적 데이터 fortune, solar_term 제외)
         Resource resource = new ClassPathResource("/data/clear.sql");
         try {
-            String sql = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
+            String sql = FileCopyUtils.copyToString(
+                new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
             Arrays.stream(sql.split("\n")).forEach(jdbcTemplate::execute);
         } catch (IOException e) {
             throw new RuntimeException("Error reading or executing SQL script: /data/clear.sql", e);
         }
     }
 
-    public ExtractableResponse<Response> post(String uri, Long userId, JSONObject jsonBody) {
-        String accessToken = JwtUtil.createToken(userId).getAccessToken();
-
+    protected ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
         RequestSpecification request = RestAssured
             .given().log().all()
                 .contentType("application/json")
-                .header("Authorization", "Bearer " + accessToken);
+                .header("Authorization", "Bearer " + createAccessToken(userId));
 
         if (jsonBody != null) {
             request.body(jsonBody.toString());
         }
 
         return request
-            .when().post(uri)
+            .when().post(url)
             .then().log().all().extract();
     }
 
+    protected ExtractableResponse<Response> get(String url, Long userId) {
+        return get(url, userId, new HashMap<>());
+    }
+
+
+    protected ExtractableResponse<Response> get(String url, Long userId, Map<String, Object> params) {
+        return RestAssured
+            .given().log().all()
+                .header("Authorization", "Bearer " + createAccessToken(userId))
+                .params(params)
+            .when().get(url)
+            .then().log().all().extract();
+    }
+
+    protected String createAccessToken(Long userId) {
+        return JwtUtil.createToken(userId).getAccessToken();
+    }
 }
