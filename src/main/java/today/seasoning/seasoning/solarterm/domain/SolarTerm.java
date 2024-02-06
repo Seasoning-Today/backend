@@ -30,4 +30,8 @@ public class SolarTerm extends BaseTimeEntity {
     public int getDaysDiff(LocalDate date) {
         return (int) Math.abs(ChronoUnit.DAYS.between(this.date, date));
     }
+
+    public int getYear() {
+        return date.getYear();
+    }
 }
