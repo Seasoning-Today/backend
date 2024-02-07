@@ -87,7 +87,8 @@ public class JwtFilter extends OncePerRequestFilter {
         List<String> allowedPaths = Arrays.asList(
             "/oauth/login",
             "/favicon.ico",
-            "/refresh");
+            "/refresh",
+            "/monitoring");
 
         String path = request.getRequestURI();
 
