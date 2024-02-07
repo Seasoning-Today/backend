@@ -34,13 +34,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
+      - name: Zip Project Files
+        run: zip -r application.zip .
+
       - name: Upload to AWS S3
         run: |
-          aws deploy push \
-            --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }} \
-            --ignore-hidden-files \
-            --s3-location s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip \
-            --source .
+          aws s3 cp \
+          --region ap-northeast-2 \
+          --acl private \
+          application.zip \
+          s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip  \ 
 
       - name: Call CodeDeploy
         run: |
