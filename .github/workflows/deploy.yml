@@ -39,11 +39,7 @@ jobs:
 
       - name: Upload to AWS S3
         run: |
-          aws s3 cp \
-          --region ap-northeast-2 \
-          --acl private \
-          application.zip \
-          s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip  \ 
+          aws s3 cp --acl private application.zip s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip 
 
       - name: Call CodeDeploy
         run: |
