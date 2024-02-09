@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import today.seasoning.seasoning.article.event.ArticleLikedEvent;
+import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.friendship.event.FriendRequestAcceptedEvent;
 import today.seasoning.seasoning.friendship.event.FriendRequestCanceledEvent;
 import today.seasoning.seasoning.friendship.event.FriendRequestDeclinedEvent;
@@ -64,7 +65,7 @@ public class UserEventHandler {
             .senderId(event.getUserId())
             .receiverId(event.getAuthorId())
             .type(NotificationType.ARTICLE_FEEDBACK)
-            .message(String.valueOf(event.getArticleId()))
+            .message(TsidUtil.toString(event.getArticleId()))
             .build();
 
         userNotificationRepository.save(notification);
