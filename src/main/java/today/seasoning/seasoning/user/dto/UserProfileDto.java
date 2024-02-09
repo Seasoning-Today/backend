@@ -16,8 +16,8 @@ public class UserProfileDto {
 	private String accountId;
 	private String profileImageUrl;
 
-	private UserProfileDto(String id, String nickname, String accountId, String profileImageUrl) {
-		this.id = id;
+	public UserProfileDto(Long id, String nickname, String accountId, String profileImageUrl) {
+		this.id = TsidUtil.toString(id);
 		this.nickname = nickname;
 		this.accountId = accountId;
 		this.profileImageUrl = profileImageUrl;
@@ -25,7 +25,7 @@ public class UserProfileDto {
 
 	public static UserProfileDto build(User user) {
 		return new UserProfileDto(
-			TsidUtil.toString(user.getId()),
+			user.getId(),
 			user.getNickname(),
 			user.getAccountId(),
 			user.getProfileImageUrl());
