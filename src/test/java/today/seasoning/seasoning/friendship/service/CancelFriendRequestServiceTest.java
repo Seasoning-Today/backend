@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.exception.CustomException;
@@ -25,6 +26,8 @@ class CancelFriendRequestServiceTest {
     UserRepository userRepository;
     @Mock
     FriendRequestRepository friendRequestRepository;
+    @Mock
+    ApplicationEventPublisher applicationEventPublisher;
     @InjectMocks
     CancelFriendRequestService cancelFriendRequestService;
 

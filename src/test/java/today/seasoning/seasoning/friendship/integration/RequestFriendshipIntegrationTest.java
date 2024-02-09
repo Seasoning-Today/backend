@@ -17,7 +17,7 @@ import today.seasoning.seasoning.friendship.domain.FriendRequest;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
 import today.seasoning.seasoning.friendship.domain.Friendship;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
-import today.seasoning.seasoning.notification.domain.NotificationRepository;
+import today.seasoning.seasoning.notification.domain.UserNotificationRepository;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
@@ -34,7 +34,7 @@ public class RequestFriendshipIntegrationTest extends BaseIntegrationTest {
     FriendRequestRepository friendRequestRepository;
 
     @Autowired
-    NotificationRepository notificationRepository;
+    UserNotificationRepository userNotificationRepository;
 
     @InjectSoftAssertions
     SoftAssertions softAssertions;
@@ -69,7 +69,7 @@ public class RequestFriendshipIntegrationTest extends BaseIntegrationTest {
         softAssertions.assertThat(response.statusCode()).isEqualTo(200);
         softAssertions.assertThat(checkFriendRequestExists(user, friend)).isTrue();
         softAssertions.assertThat(checkFriendRequestExists(friend, user)).isFalse();
-        softAssertions.assertThat(notificationRepository.count()).isEqualTo(1);
+        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(1);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class RequestFriendshipIntegrationTest extends BaseIntegrationTest {
         //then
         softAssertions.assertThat(response.statusCode()).isEqualTo(409);
         softAssertions.assertThat(checkFriendRequestExists(user, friend)).isFalse();
-        softAssertions.assertThat(notificationRepository.count()).isEqualTo(0);
+        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(0);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class RequestFriendshipIntegrationTest extends BaseIntegrationTest {
 
         //then
         softAssertions.assertThat(response.statusCode()).isEqualTo(409);
-        softAssertions.assertThat(notificationRepository.count()).isEqualTo(0);
+        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(0);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class RequestFriendshipIntegrationTest extends BaseIntegrationTest {
         //then
         softAssertions.assertThat(response.statusCode()).isEqualTo(400);
         softAssertions.assertThat(checkFriendRequestExists(user, user)).isFalse();
-        softAssertions.assertThat(notificationRepository.count()).isEqualTo(0);
+        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(0);
     }
 
     private boolean checkFriendRequestExists(User fromUser, User toUser) {
