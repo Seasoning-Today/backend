@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
-import today.seasoning.seasoning.user.dto.UserProfileDto;
+import today.seasoning.seasoning.user.dto.UserProfileResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -15,8 +15,8 @@ public class FindUserProfileService {
 
 	// 프로필 조회
 	@Transactional(readOnly = true)
-	public UserProfileDto findUserProfile(Long userId) {
+	public UserProfileResponse findUserProfile(Long userId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		return UserProfileDto.build(user);
+		return UserProfileResponse.build(user);
 	}
 }

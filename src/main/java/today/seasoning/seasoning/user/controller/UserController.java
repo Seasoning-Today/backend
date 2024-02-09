@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.common.UserPrincipal;
 import today.seasoning.seasoning.user.domain.AccountId;
 import today.seasoning.seasoning.user.dto.UpdateUserProfileRequest;
-import today.seasoning.seasoning.user.dto.UserProfileDto;
+import today.seasoning.seasoning.user.dto.UserProfileResponse;
 import today.seasoning.seasoning.user.service.DeleteUserService;
 import today.seasoning.seasoning.user.service.FindUserProfileService;
 import today.seasoning.seasoning.user.service.UpdateUserProfileService;
@@ -34,8 +34,8 @@ public class UserController {
 
     // 프로필 조회
     @GetMapping("/profile")
-    public ResponseEntity<UserProfileDto> findUserProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        UserProfileDto userProfile = findUserProfileService.findUserProfile(userPrincipal.getId());
+    public ResponseEntity<UserProfileResponse> findUserProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        UserProfileResponse userProfile = findUserProfileService.findUserProfile(userPrincipal.getId());
         return ResponseEntity.ok().body(userProfile);
     }
 
