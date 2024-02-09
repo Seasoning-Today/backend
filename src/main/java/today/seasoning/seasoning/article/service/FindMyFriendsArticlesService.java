@@ -11,8 +11,8 @@ import today.seasoning.seasoning.article.domain.Article;
 import today.seasoning.seasoning.article.domain.ArticleImage;
 import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
 import today.seasoning.seasoning.article.dto.FriendArticleDto;
-import today.seasoning.seasoning.article.dto.UserProfileDto;
 import today.seasoning.seasoning.common.util.TsidUtil;
+import today.seasoning.seasoning.user.dto.UserProfileDto;
 
 @Service
 @RequiredArgsConstructor

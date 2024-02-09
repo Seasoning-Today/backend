@@ -1,6 +1,7 @@
 package today.seasoning.seasoning.article.dto;
 
 import lombok.Getter;
+import today.seasoning.seasoning.user.dto.UserProfileDto;
 
 @Getter
 public class FindMyFriendsArticlesResult {
