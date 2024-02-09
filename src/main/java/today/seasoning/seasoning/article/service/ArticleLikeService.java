@@ -1,6 +1,7 @@
 package today.seasoning.seasoning.article.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,14 +9,11 @@ import today.seasoning.seasoning.article.domain.Article;
 import today.seasoning.seasoning.article.domain.ArticleLike;
 import today.seasoning.seasoning.article.domain.ArticleLikeRepository;
 import today.seasoning.seasoning.article.domain.ArticleRepository;
+import today.seasoning.seasoning.article.event.ArticleLikedEvent;
 import today.seasoning.seasoning.common.exception.CustomException;
-import today.seasoning.seasoning.common.util.EntitySerializationUtil;
 import today.seasoning.seasoning.friendship.service.CheckFriendshipService;
-import today.seasoning.seasoning.notification.domain.NotificationType;
-import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
-import today.seasoning.seasoning.user.dto.UserProfileDto;
 
 @Service
 @Transactional
@@ -26,12 +24,12 @@ public class ArticleLikeService {
 	private final ArticleRepository articleRepository;
 	private final ArticleLikeRepository articleLikeRepository;
 	private final CheckFriendshipService checkFriendshipService;
-	private final NotificationService notificationService;
+	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public void doLike(Long userId, Long articleId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-
 		Article article = findArticleOrThrow(articleId);
+		User author = article.getUser();
 
 		validatePermission(userId, article);
 
@@ -39,10 +37,9 @@ public class ArticleLikeService {
 			throw new CustomException(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다.");
 		}
 
-		ArticleLike articleLike = new ArticleLike(article, user);
-		articleLikeRepository.save(articleLike);
+		articleLikeRepository.save(new ArticleLike(article, user));
 
-		registerArticleFeedbackNotification(user, article.getUser());
+		applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
 	}
 
 	public void cancelLike(Long userId, Long articleId) {
@@ -59,15 +56,6 @@ public class ArticleLikeService {
 	private Article findArticleOrThrow(Long articleId) {
 		return articleRepository.findById(articleId)
 			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
-	}
-
-	private void registerArticleFeedbackNotification(User reader, User author) {
-		UserProfileDto userProfile = UserProfileDto.build(reader);
-		String userProfileJsonMessage = EntitySerializationUtil.serialize(userProfile);
-
-		notificationService.registerNotification(author.getId(),
-			NotificationType.ARTICLE_FEEDBACK,
-			userProfileJsonMessage);
 	}
 
 	private void validatePermission(Long userId, Article article) {

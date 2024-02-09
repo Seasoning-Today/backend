@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
 import today.seasoning.seasoning.solarterm.dto.FindSolarTermInfoResponse;
@@ -31,7 +30,6 @@ public class SolarTermService {
     private int ARTICLE_REGISTRATION_PERIOD;
 
     private final SolarTermRepository solarTermRepository;
-    private final NotificationService notificationService;
 
     @PostConstruct
     protected void init() {
@@ -40,13 +38,7 @@ public class SolarTermService {
 
     @Scheduled(cron = "5 0 0 * * *")
     protected void dailyUpdate() {
-        Optional<SolarTerm> pastRecordSolarTerm = recordSolarTerm;
-
         updateSolarTerms();
-
-        if (pastRecordSolarTerm.isEmpty() && recordSolarTerm.isPresent()) {
-            notificationService.registerArticleOpenNotification(recordSolarTerm.get().getSequence());
-        }
     }
 
     protected void updateSolarTerms() {

@@ -2,11 +2,13 @@ package today.seasoning.seasoning.friendship.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
+import today.seasoning.seasoning.friendship.event.FriendRequestDeclinedEvent;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
@@ -17,6 +19,7 @@ public class DeclineFriendRequestService {
 
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public void doService(Long userId, Long requesterUserId) {
         User requester = userRepository.findByIdOrElseThrow(requesterUserId);
@@ -26,5 +29,7 @@ public class DeclineFriendRequestService {
         }
 
         friendRequestRepository.deleteByFromUserIdAndToUserId(requester.getId(), userId);
+
+        applicationEventPublisher.publishEvent(new FriendRequestDeclinedEvent(requester.getId(), userId));
     }
 }
