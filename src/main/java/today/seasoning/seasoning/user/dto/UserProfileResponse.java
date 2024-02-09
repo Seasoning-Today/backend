@@ -14,13 +14,13 @@ public class UserProfileResponse {
 	private String id;
 	private String nickname;
 	private String accountId;
-	private String profileImageUrl;
+	private String image;
 
-	public UserProfileResponse(Long id, String nickname, String accountId, String profileImageUrl) {
+	public UserProfileResponse(Long id, String nickname, String accountId, String image) {
 		this.id = TsidUtil.toString(id);
 		this.nickname = nickname;
 		this.accountId = accountId;
-		this.profileImageUrl = profileImageUrl;
+		this.image = image;
 	}
 
 	public static UserProfileResponse build(User user) {
