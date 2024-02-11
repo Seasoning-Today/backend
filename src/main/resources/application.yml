@@ -29,4 +29,11 @@ spring:
       on-profile: prod
     import: secret/application-prod-config.yml
 
+---
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
 

@@ -3,6 +3,8 @@ package today.seasoning.seasoning.user.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +14,7 @@ import today.seasoning.seasoning.common.UserPrincipal;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(title = "사용자 프로필 수정")
 public class UpdateUserProfileRequest {
 
 	@NotNull
