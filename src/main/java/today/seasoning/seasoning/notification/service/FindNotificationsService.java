@@ -13,11 +13,11 @@ import today.seasoning.seasoning.notification.dto.UserNotificationResponse;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class NotificationService {
+public class FindNotificationsService {
 
     private final UserNotificationRepository userNotificationRepository;
 
-    public List<UserNotificationResponse> findNotifications(FindNotificationCommand command) {
+    public List<UserNotificationResponse> doService(FindNotificationCommand command) {
         List<UserNotificationProjectionInterface> projectionInterfaces = userNotificationRepository.find(
             command.getUserId(), command.getLastId(), command.getPageSize());
 
