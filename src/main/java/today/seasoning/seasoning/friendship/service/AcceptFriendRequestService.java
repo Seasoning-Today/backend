@@ -2,19 +2,17 @@ package today.seasoning.seasoning.friendship.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.exception.CustomException;
-import today.seasoning.seasoning.common.util.EntitySerializationUtil;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
 import today.seasoning.seasoning.friendship.domain.Friendship;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
-import today.seasoning.seasoning.notification.domain.NotificationType;
-import today.seasoning.seasoning.notification.service.NotificationService;
+import today.seasoning.seasoning.friendship.event.FriendRequestAcceptedEvent;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
-import today.seasoning.seasoning.user.dto.UserProfileDto;
 
 @Slf4j
 @Service
@@ -22,9 +20,9 @@ import today.seasoning.seasoning.user.dto.UserProfileDto;
 public class AcceptFriendRequestService {
 
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
     private final FriendshipRepository friendshipRepository;
     private final FriendRequestRepository friendRequestRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void doService(Long userId, Long requestUserId) {
@@ -44,11 +42,6 @@ public class AcceptFriendRequestService {
         friendRequestRepository.deleteByFromUserIdAndToUserId(user.getId(), requester.getId());
 
         // 알림 등록
-        registerNotifications(user, requester);
-    }
-
-    private void registerNotifications(User user, User requester) {
-        String message = EntitySerializationUtil.serialize(UserProfileDto.build(user));
-        notificationService.registerNotification(requester.getId(), NotificationType.FRIENDSHIP_ACCEPTED, message);
+        applicationEventPublisher.publishEvent(new FriendRequestAcceptedEvent(requester.getId(), user.getId()));
     }
 }

@@ -11,8 +11,8 @@ import today.seasoning.seasoning.article.domain.Article;
 import today.seasoning.seasoning.article.domain.ArticleImage;
 import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
 import today.seasoning.seasoning.article.dto.FriendArticleDto;
-import today.seasoning.seasoning.article.dto.UserProfileDto;
 import today.seasoning.seasoning.common.util.TsidUtil;
+import today.seasoning.seasoning.user.dto.UserProfileResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +40,10 @@ public class FindMyFriendsArticlesService {
 	}
 
 	private FindMyFriendsArticlesResult toDto(Article article) {
-		UserProfileDto userProfileDto = UserProfileDto.build(article.getUser());
+		UserProfileResponse userProfileResponse = UserProfileResponse.build(article.getUser());
 		FriendArticleDto friendArticleDto = createFriendArticleDto(article);
 
-		return new FindMyFriendsArticlesResult(userProfileDto, friendArticleDto);
+		return new FindMyFriendsArticlesResult(userProfileResponse, friendArticleDto);
 	}
 
 	private FriendArticleDto createFriendArticleDto(Article article) {

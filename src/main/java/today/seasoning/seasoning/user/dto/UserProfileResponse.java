@@ -9,23 +9,23 @@ import today.seasoning.seasoning.user.domain.User;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserProfileDto {
+public class UserProfileResponse {
 
 	private String id;
 	private String nickname;
 	private String accountId;
-	private String profileImageUrl;
+	private String image;
 
-	private UserProfileDto(String id, String nickname, String accountId, String profileImageUrl) {
-		this.id = id;
+	public UserProfileResponse(Long id, String nickname, String accountId, String image) {
+		this.id = TsidUtil.toString(id);
 		this.nickname = nickname;
 		this.accountId = accountId;
-		this.profileImageUrl = profileImageUrl;
+		this.image = image;
 	}
 
-	public static UserProfileDto build(User user) {
-		return new UserProfileDto(
-			TsidUtil.toString(user.getId()),
+	public static UserProfileResponse build(User user) {
+		return new UserProfileResponse(
+			user.getId(),
 			user.getNickname(),
 			user.getAccountId(),
 			user.getProfileImageUrl());

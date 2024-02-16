@@ -5,5 +5,6 @@ DELETE FROM article_image WHERE TRUE;
 DELETE FROM article_like WHERE TRUE;
 DELETE FROM friend_request WHERE TRUE;
 DELETE FROM friendship WHERE TRUE;
-DELETE FROM notification WHERE TRUE;
+DELETE FROM user_notification WHERE TRUE;
+DELETE FROM server_notification WHERE TRUE;
 SET FOREIGN_KEY_CHECKS=1;
