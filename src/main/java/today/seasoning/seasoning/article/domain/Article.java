@@ -1,5 +1,6 @@
 package today.seasoning.seasoning.article.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
@@ -47,6 +48,7 @@ public class Article extends BaseTimeEntity {
     @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE)
     private List<ArticleLike> articleLikes;
 
+    @Builder
     public Article(User user, boolean published, int createdYear, int createdTerm, String contents) {
         this.id = TsidUtil.createLong();
         this.user = user;

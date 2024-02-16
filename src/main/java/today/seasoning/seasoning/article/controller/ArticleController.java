@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import today.seasoning.seasoning.article.dto.FindArticleResult;
+import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
@@ -60,12 +60,12 @@ public class ArticleController {
     }
 
     @GetMapping("/{articleId}")
-    public ResponseEntity<FindArticleResult> findArticle(
+    public ResponseEntity<ArticleResponse> findArticle(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable String articleId
     ) {
-        FindArticleResult findArticleResult = findArticleService.doFind(principal.getId(), TsidUtil.toLong(articleId));
-        return ResponseEntity.ok(findArticleResult);
+        ArticleResponse articleResponse = findArticleService.doFind(principal.getId(), TsidUtil.toLong(articleId));
+        return ResponseEntity.ok(articleResponse);
     }
 
     @PutMapping("/{articleId}")
