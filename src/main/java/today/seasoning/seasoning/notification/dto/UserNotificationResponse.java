@@ -1,12 +1,14 @@
 package today.seasoning.seasoning.notification.dto;
 
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.user.dto.UserProfileResponse;
 
 @Getter
+@Builder
 @RequiredArgsConstructor
 public class UserNotificationResponse {
 
