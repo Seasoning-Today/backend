@@ -16,12 +16,11 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
     void delete(@Param("senderId") Long sender, @Param("receiverId") Long receiverId, @Param("type") NotificationType type);
 
     @Query(value = "SELECT n.id as id, n.type as type, n.created_date as created, u.id as userId, u.nickname as userNickname, u.account_id as userAccountId, u.profile_image_url as userImageUrl, n.message as message, n.is_read as isRead " +
-            "FROM user u " +
-            "INNER JOIN user_notification n ON n.id < :lastId AND n.receiver_id = u.id " +
-            "WHERE u.id = :receiverId " +
-            "ORDER BY n.id DESC LIMIT :size", nativeQuery = true)
-    List<UserNotificationProjectionInterface> find(@Param("receiverId") Long receiverId, @Param("lastId") long lastId,
-        @Param("size") int size);
+        "FROM user_notification n " +
+        "INNER JOIN user u ON n.sender_id = u.id " +
+        "WHERE n.receiver_id = :receiverId AND n.id < :lastId " +
+        "ORDER BY n.id DESC LIMIT :size", nativeQuery = true)
+    List<UserNotificationProjectionInterface> find(@Param("receiverId") Long receiverId, @Param("lastId") long lastId, @Param("size") int size);
 
     @Modifying
     @Query("UPDATE UserNotification n SET n.read = true WHERE n.id = :id")
