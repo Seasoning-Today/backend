@@ -8,7 +8,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,16 +57,12 @@ public class FriendshipController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("/add/accept")
+    @PostMapping("/add/accept")
     public ResponseEntity<String> acceptFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
     ) {
-        Long userId = principal.getId();
-        Long requesterUserId = userIdDto.toLong();
-
-        acceptFriendRequestService.doService(userId, requesterUserId);
-
+        acceptFriendRequestService.doService(principal.getId(), userIdDto.toLong());
         return ResponseEntity.ok().body("수락 완료");
     }
 
