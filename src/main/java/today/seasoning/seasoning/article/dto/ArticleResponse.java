@@ -1,6 +1,7 @@
 package today.seasoning.seasoning.article.dto;
 
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import today.seasoning.seasoning.article.domain.Article;
@@ -8,6 +9,7 @@ import today.seasoning.seasoning.article.domain.ArticleLike;
 import today.seasoning.seasoning.user.dto.UserProfileResponse;
 
 @Getter
+@Builder
 @RequiredArgsConstructor
 public class ArticleResponse {
 
