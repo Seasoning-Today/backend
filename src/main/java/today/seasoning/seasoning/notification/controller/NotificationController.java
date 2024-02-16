@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 import today.seasoning.seasoning.common.UserPrincipal;
 import today.seasoning.seasoning.notification.dto.FindNotificationCommand;
 import today.seasoning.seasoning.notification.dto.UserNotificationResponse;
-import today.seasoning.seasoning.notification.service.NotificationService;
+import today.seasoning.seasoning.notification.service.CheckUnreadNotificationsExistService;
+import today.seasoning.seasoning.notification.service.FindNotificationsService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/notification")
 public class NotificationController {
 
-	private final NotificationService notificationService;
+	private final FindNotificationsService findNotificationsService;
+	private final CheckUnreadNotificationsExistService checkUnreadNotificationsExistService;
 
 	@GetMapping
 	public ResponseEntity<List<UserNotificationResponse>> findNotifications(
@@ -27,8 +29,14 @@ public class NotificationController {
 		@RequestParam(name = "size", defaultValue = "10") Integer pageSize
 	) {
 		FindNotificationCommand command = new FindNotificationCommand(principal.getId(), lastId, pageSize);
-		List<UserNotificationResponse> notifications = notificationService.findNotifications(command);
+		List<UserNotificationResponse> notifications = findNotificationsService.doService(command);
 		return ResponseEntity.ok(notifications);
+	}
+
+	@GetMapping("/new")
+	public ResponseEntity<Boolean> checkUnreadNotificationsExist(@AuthenticationPrincipal UserPrincipal principal) {
+		boolean result = checkUnreadNotificationsExistService.doService(principal.getId());
+		return ResponseEntity.ok(result);
 	}
 
 }
