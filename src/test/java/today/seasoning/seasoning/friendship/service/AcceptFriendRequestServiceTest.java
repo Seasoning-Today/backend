@@ -12,12 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.friendship.domain.FriendRequestRepository;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
-import today.seasoning.seasoning.notification.service.NotificationService;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
@@ -28,7 +28,7 @@ class AcceptFriendRequestServiceTest {
     @Mock
     UserRepository userRepository;
     @Mock
-    NotificationService notificationService;
+    ApplicationEventPublisher applicationEventPublisher;
     @Mock
     FriendshipRepository friendshipRepository;
     @Mock
