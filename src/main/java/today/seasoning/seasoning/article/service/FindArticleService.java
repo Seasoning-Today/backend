@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.article.domain.Article;
 import today.seasoning.seasoning.article.domain.ArticleRepository;
-import today.seasoning.seasoning.article.dto.FindArticleResult;
+import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.friendship.service.CheckFriendshipService;
 
@@ -18,13 +18,13 @@ public class FindArticleService {
     private final ArticleRepository articleRepository;
     private final CheckFriendshipService checkFriendshipService;
 
-    public FindArticleResult doFind(Long userId, Long articleId) {
+    public ArticleResponse doFind(Long userId, Long articleId) {
         Article article = articleRepository.findById(articleId)
             .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
 
         validatePermission(userId, article);
 
-        return FindArticleResult.build(userId, article);
+        return ArticleResponse.build(userId, article);
     }
 
     private void validatePermission(Long userId, Article article) {
