@@ -56,28 +56,28 @@ public class FindAndRegisterSolarTermsService {
     }
 
     public void findAndRegisterSolarTermsOf(int year) {
-        String stringYear = String.valueOf(year);
-        List<String> months = List.of("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
+        List<String> months = List.of("02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "01");
 
         try {
-            List<LocalDate> nextYearSolarTermDates = new ArrayList<>(24);
+            List<LocalDate> solarTermDates = new ArrayList<>(24);
 
             for (String month : months) {
-                findAndAddSolarTermDate(stringYear, month, nextYearSolarTermDates);
+                int findYear = month.equals("01") ? year + 1 : year;
+                findAndAddSolarTermDate(String.valueOf(findYear), month, solarTermDates);
             }
 
             for (int i = 0; i < 24; i++) {
-                SolarTerm solarTerm = new SolarTerm(i + 1, nextYearSolarTermDates.get(i));
+                SolarTerm solarTerm = new SolarTerm(i + 1, solarTermDates.get(i));
                 solarTermRepository.save(solarTerm);
             }
 
-            log.info("{}년 절기 등록 완료", stringYear);
+            log.info("{}년 절기 등록 완료", year);
         } catch (Exception e) {
             StringWriter stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
-            log.error("{}년 절기 등록 실패 : {}", stringYear, stringWriter);
+            log.error("{}년 절기 등록 실패 : {}", year, stringWriter);
 
-            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, stringYear + "년 절기 등록 실패");
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, year + "년 절기 등록 실패");
         }
     }
 
