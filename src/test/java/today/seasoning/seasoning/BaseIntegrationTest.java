@@ -3,7 +3,6 @@ package today.seasoning.seasoning;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -63,25 +62,9 @@ public class BaseIntegrationTest {
         }
     }
 
-    protected ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
-        RequestSpecification request = RestAssured
-            .given().log().all()
-            .contentType("application/json")
-            .header("Authorization", "Bearer " + createAccessToken(userId));
-
-        if (jsonBody != null) {
-            request.body(jsonBody.toString());
-        }
-
-        return request
-            .when().post(url)
-            .then().log().all().extract();
-    }
-
     protected ExtractableResponse<Response> get(String url, Long userId) {
         return get(url, userId, new HashMap<>());
     }
-
 
     protected ExtractableResponse<Response> get(String url, Long userId, Map<String, Object> params) {
         return RestAssured
@@ -89,6 +72,25 @@ public class BaseIntegrationTest {
             .header("Authorization", "Bearer " + createAccessToken(userId))
             .params(params)
             .when().get(url)
+            .then().log().all().extract();
+    }
+
+    protected ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
+        return RestAssured
+            .given().log().all()
+            .contentType("application/json")
+            .header("Authorization", "Bearer " + createAccessToken(userId))
+            .body(jsonBody == null ? "" : jsonBody.toString())
+            .when().post(url)
+            .then().log().all().extract();
+    }
+
+    protected ExtractableResponse<Response> post(String url, Long userId, Map<String, Object> params) {
+        return RestAssured
+            .given().log().all()
+            .header("Authorization", "Bearer " + createAccessToken(userId))
+            .params(params == null ? new HashMap<>() : params)
+            .when().post(url)
             .then().log().all().extract();
     }
 
