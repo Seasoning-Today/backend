@@ -7,4 +7,5 @@ DELETE FROM friend_request WHERE TRUE;
 DELETE FROM friendship WHERE TRUE;
 DELETE FROM user_notification WHERE TRUE;
 DELETE FROM server_notification WHERE TRUE;
+DELETE FROM solar_term WHERE TRUE;
 SET FOREIGN_KEY_CHECKS=1;
