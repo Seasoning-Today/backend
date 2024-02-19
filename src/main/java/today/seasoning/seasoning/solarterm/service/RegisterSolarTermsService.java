@@ -1,5 +1,8 @@
 package today.seasoning.seasoning.solarterm.service;
 
+import static java.net.URLEncoder.*;
+import static java.nio.charset.StandardCharsets.*;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -8,8 +11,6 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class FindAndRegisterSolarTermsService {
+public class RegisterSolarTermsService {
 
     @Value("${OPEN_API_KEY}")
     private String API_KEY;
@@ -44,7 +45,7 @@ public class FindAndRegisterSolarTermsService {
     private final SolarTermRepository solarTermRepository;
 
     @Scheduled(cron = "0 0 0 1 12 *")
-    public void findAndRegisterNextYearSolarTerms() {
+    public void doService() {
         int nextYear = LocalDate.now().getYear() + 1;
 
         try {
@@ -63,7 +64,8 @@ public class FindAndRegisterSolarTermsService {
 
             for (String month : months) {
                 int findYear = month.equals("01") ? year + 1 : year;
-                findAndAddSolarTermDate(String.valueOf(findYear), month, solarTermDates);
+                String xmlResponse = callAPI(String.valueOf(findYear), month);
+                parseSolarTermDates(xmlResponse, solarTermDates);
             }
 
             for (int i = 0; i < 24; i++) {
@@ -81,14 +83,8 @@ public class FindAndRegisterSolarTermsService {
         }
     }
 
-    private void findAndAddSolarTermDate(String year, String month, List<LocalDate> terms) throws Exception {
-        String xmlString = getXmlString(year, month);
-        parseAndAddTerms(xmlString, terms);
-    }
-
-    private String getXmlString(String year, String month) throws Exception {
+    private String callAPI(String year, String month) throws Exception {
         URL url = buildUrl(year, month);
-
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-type", "application/json");
@@ -107,11 +103,10 @@ public class FindAndRegisterSolarTermsService {
         return sb.toString();
     }
 
-    private void parseAndAddTerms(String xmlString, List<LocalDate> terms) throws Exception {
+    private void parseSolarTermDates(String xmlString, List<LocalDate> terms) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        ByteArrayInputStream input = new ByteArrayInputStream(
-            xmlString.getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream input = new ByteArrayInputStream(xmlString.getBytes(UTF_8));
         Document doc = builder.parse(input);
         NodeList itemList = doc.getElementsByTagName("item");
 
@@ -123,32 +118,24 @@ public class FindAndRegisterSolarTermsService {
     }
 
     private URL buildUrl(String year, String month) throws MalformedURLException {
-
-        String urlBuilder = "http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/get24DivisionsInfo"
+        String url = "http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/get24DivisionsInfo"
 
             // API 키
-            + "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + API_KEY
+            + "?" + encode("serviceKey", UTF_8) + "=" + API_KEY
 
             // 조회 년도
-            + "&" + URLEncoder.encode("solYear", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(year,
-            StandardCharsets.UTF_8)
+            + "&" + encode("solYear", UTF_8) + "=" + encode(year, UTF_8)
 
             // 조회 월
-            + "&" + URLEncoder.encode("solMonth", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(month,
-            StandardCharsets.UTF_8)
+            + "&" + encode("solMonth", UTF_8) + "=" + encode(month, UTF_8)
 
             // 고정값
-            + "&" + URLEncoder.encode("kst", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("0000",
-            StandardCharsets.UTF_8)
-            + "&" + URLEncoder.encode("sunLongitude", StandardCharsets.UTF_8) + "="
-            + URLEncoder.encode("285", StandardCharsets.UTF_8)
-            + "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(
-            "10", StandardCharsets.UTF_8)
-            + "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1",
-            StandardCharsets.UTF_8)
-            + "&" + URLEncoder.encode("totalCount", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(
-            "210114", StandardCharsets.UTF_8);
+            + "&" + encode("kst", UTF_8) + "=" + encode("0000", UTF_8)
+            + "&" + encode("sunLongitude", UTF_8) + "=" + encode("285", UTF_8)
+            + "&" + encode("numOfRows", UTF_8) + "=" + encode("10", UTF_8)
+            + "&" + encode("pageNo", UTF_8) + "=" + encode("1", UTF_8)
+            + "&" + encode("totalCount", UTF_8) + "=" + encode("210114", UTF_8);
 
-        return new URL(urlBuilder);
+        return new URL(url);
     }
 }
