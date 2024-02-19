@@ -1,11 +1,17 @@
 package today.seasoning.seasoning.notice.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import today.seasoning.seasoning.notice.dto.FindNoticeCommand;
+import today.seasoning.seasoning.notice.dto.NoticeResponse;
+import today.seasoning.seasoning.notice.service.FindNoticeService;
 import today.seasoning.seasoning.notice.service.RegisterNoticeService;
 
 @RestController
@@ -13,7 +19,18 @@ import today.seasoning.seasoning.notice.service.RegisterNoticeService;
 @RequestMapping("/notice")
 public class NoticeController {
 
+    private final FindNoticeService findNoticeService;
     private final RegisterNoticeService registerNoticeService;
+
+    @GetMapping
+    public ResponseEntity<List<NoticeResponse>> find(
+        @RequestParam(name = "lastId", defaultValue = "AzL8n0Y58m7") String lastNoticeId,
+        @RequestParam(name = "size", defaultValue = "10") Integer pageSize
+    ) {
+        FindNoticeCommand command = new FindNoticeCommand(lastNoticeId, pageSize);
+        List<NoticeResponse> noticeResponses = findNoticeService.doService(command);
+        return ResponseEntity.ok(noticeResponses);
+    }
 
     @PostMapping
     public ResponseEntity<Void> register(@RequestBody String content) {
