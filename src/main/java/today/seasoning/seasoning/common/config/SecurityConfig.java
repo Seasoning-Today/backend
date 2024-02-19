@@ -3,6 +3,7 @@ package today.seasoning.seasoning.common.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,7 +31,8 @@ public class SecurityConfig {
 
         httpSecurity.authorizeRequests()
             .antMatchers("/oauth/login/**", "/refresh", "/favicon.ico", "/monitoring/**").permitAll()
-            .antMatchers("/manage/**").hasAnyRole(Role.MANAGER.name(), Role.ADMIN.name())
+            .antMatchers(HttpMethod.GET, "/notice/**").permitAll()
+            .antMatchers("/notice/**").hasAnyRole(Role.MANAGER.name(), Role.ADMIN.name())
             .antMatchers("/admin/**").hasRole(Role.ADMIN.name())
             .anyRequest().authenticated();
 

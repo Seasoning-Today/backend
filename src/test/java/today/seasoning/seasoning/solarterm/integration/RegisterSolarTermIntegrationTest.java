@@ -35,10 +35,10 @@ public class RegisterSolarTermIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("성공 - 관리자 요청")
-    @Sql(statements = {"INSERT INTO user (id, account_id, email, login_type, nickname, role) VALUES (547055053614975161, 'testID', 'admin@test.org', 'KAKAO', 'test_nickname', 'ADMIN')"})
+    @Sql(scripts = "classpath:data/insert_admin_user.sql")
     void test() throws Exception {
         //given
-        User admin = userRepository.findByIdOrElseThrow(547055053614975161L);
+        User admin = userRepository.findByIdOrElseThrow(1L);
 
         //when
         int year = LocalDate.now().getYear();
@@ -123,10 +123,10 @@ public class RegisterSolarTermIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @DisplayName("실패 - 매니저 요청")
-    @Sql(statements = {"INSERT INTO user (id, account_id, email, login_type, nickname, role) VALUES (547055053614975161, 'testID', 'admin@test.org', 'KAKAO', 'test_nickname', 'MANAGER')"})
+    @Sql(scripts = "classpath:data/insert_manager_user.sql")
     void test3() throws Exception {
         //given
-        User manager = userRepository.findByIdOrElseThrow(547055053614975161L);
+        User manager = userRepository.findByIdOrElseThrow(1L);
 
         //when
         int year = LocalDate.now().getYear();
