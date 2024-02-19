@@ -20,16 +20,17 @@ import today.seasoning.seasoning.solarterm.dto.FindSolarTermInfoResponse;
 @RequiredArgsConstructor
 public class SolarTermService {
 
-    // 날짜상 현재 절기와 다음 절기
-    private SolarTerm currentSolarTerm;
-    private SolarTerm nextSolarTerm;
-    // 현재 기록장이 열린 절기
-    private Optional<SolarTerm> recordSolarTerm;
 
     @Value("${ARTICLE-REGISTRATION-PERIOD}")
     private int ARTICLE_REGISTRATION_PERIOD;
 
     private final SolarTermRepository solarTermRepository;
+
+    // 날짜상 현재 절기와 다음 절기
+    private Optional<SolarTerm> currentSolarTerm = Optional.empty();
+    private Optional<SolarTerm> nextSolarTerm = Optional.empty();
+    // 현재 기록장이 열린 절기
+    private Optional<SolarTerm> recordSolarTerm = Optional.empty();
 
     @PostConstruct
     protected void init() {
@@ -48,14 +49,14 @@ public class SolarTermService {
 
         for (int i = 0; i + 1 < solarTerms.size(); i++) {
             if (!today.isBefore(solarTerms.get(i).getDate()) && today.isBefore(solarTerms.get(i + 1).getDate())) {
-                currentSolarTerm = solarTerms.get(i);
-                nextSolarTerm = solarTerms.get(i + 1);
+                currentSolarTerm = Optional.of(solarTerms.get(i));
+                nextSolarTerm = Optional.of(solarTerms.get(i + 1));
 
                 // 현재 기록장이 열린 절기를 계산
-                if (currentSolarTerm.getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
-                    recordSolarTerm = Optional.of(currentSolarTerm);
-                } else if (nextSolarTerm.getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
-                    recordSolarTerm = Optional.of(nextSolarTerm);
+                if (currentSolarTerm.get().getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
+                    recordSolarTerm = currentSolarTerm;
+                } else if (nextSolarTerm.get().getDaysDiff(today) <= ARTICLE_REGISTRATION_PERIOD) {
+                    recordSolarTerm = nextSolarTerm;
                 } else {
                     recordSolarTerm = Optional.empty();
                 }
@@ -65,8 +66,8 @@ public class SolarTermService {
         }
 
         log.info("현재 절기 : {} / 다음 절기 : {} / 열린 절기 : {}",
-            currentSolarTerm.getSequence(),
-            nextSolarTerm.getSequence(),
+            currentSolarTerm.map(SolarTerm::getSequence).orElse(-1),
+            nextSolarTerm.map(SolarTerm::getSequence).orElse(-1),
             recordSolarTerm.map(SolarTerm::getSequence).orElse(-1));
     }
 
@@ -75,7 +76,10 @@ public class SolarTermService {
     }
 
     public FindSolarTermInfoResponse findSolarTermInfo() {
-        return FindSolarTermInfoResponse.build(currentSolarTerm, nextSolarTerm, recordSolarTerm.orElse(null),
+        return FindSolarTermInfoResponse.build(
+            currentSolarTerm.orElse(null),
+            nextSolarTerm.orElse(null),
+            recordSolarTerm.orElse(null),
             ARTICLE_REGISTRATION_PERIOD);
     }
 }
