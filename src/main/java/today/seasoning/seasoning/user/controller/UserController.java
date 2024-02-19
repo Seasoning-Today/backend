@@ -21,6 +21,7 @@ import today.seasoning.seasoning.user.dto.UpdateUserProfileRequest;
 import today.seasoning.seasoning.user.dto.UserProfileResponse;
 import today.seasoning.seasoning.user.service.DeleteUserService;
 import today.seasoning.seasoning.user.service.FindUserProfileService;
+import today.seasoning.seasoning.user.service.FindUserSearchableStatusService;
 import today.seasoning.seasoning.user.service.UpdateUserProfileService;
 import today.seasoning.seasoning.user.service.UpdateUserSearchableStatusService;
 import today.seasoning.seasoning.user.service.VerifyAccountIdService;
@@ -36,6 +37,7 @@ public class UserController {
     private final VerifyAccountIdService verifyAccountIdService;
     private final DeleteUserService deleteUserService;
     private final UpdateUserSearchableStatusService updateUserSearchableStatusService;
+    private final FindUserSearchableStatusService findUserSearchableStatusService;
 
     // 프로필 조회
     @GetMapping("/profile")
@@ -67,6 +69,12 @@ public class UserController {
     public ResponseEntity<Void> unregister(@AuthenticationPrincipal UserPrincipal principal) {
         deleteUserService.doService(principal.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/searchable")
+    public ResponseEntity<Boolean> findSearchableStatus(@AuthenticationPrincipal UserPrincipal principal) {
+        boolean searchable = findUserSearchableStatusService.doService(principal.getId());
+        return ResponseEntity.ok(searchable);
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT, params = "searchable")
