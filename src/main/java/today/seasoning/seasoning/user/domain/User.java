@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.enums.LoginType;
@@ -39,9 +40,14 @@ public class User extends BaseTimeEntity {
     @Column(name = "login_type", nullable = false)
     private LoginType loginType;
 
+    @ColumnDefault("USER")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private boolean searchable;
 
     public User(String nickname, String profileImageUrl, String email, LoginType loginType) {
         this.id = TsidCreator.getTsid().toLong();
@@ -51,6 +57,7 @@ public class User extends BaseTimeEntity {
         this.email = email;
         this.loginType = loginType;
         this.role = Role.USER;
+        this.searchable = true;
     }
 
     public void updateProfile(String nickname, String accountId) {
@@ -66,5 +73,9 @@ public class User extends BaseTimeEntity {
     public void changeProfileImage(UploadFileInfo uploadFile) {
         this.profileImageFilename = uploadFile.getFilename();
         this.profileImageUrl = uploadFile.getUrl();
+    }
+
+    public void setSearchable(boolean searchable) {
+        this.searchable = searchable;
     }
 }
