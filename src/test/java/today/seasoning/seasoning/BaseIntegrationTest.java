@@ -114,6 +114,15 @@ public class BaseIntegrationTest {
             .then().log().all().extract();
     }
 
+    protected ExtractableResponse<Response> delete(String url, Long userId, Map<String, Object> params) {
+        return RestAssured
+            .given().log().all()
+            .header("Authorization", "Bearer " + createAccessToken(userId))
+            .params(params == null ? new HashMap<>() : params)
+            .when().delete(url)
+            .then().log().all().extract();
+    }
+
     protected String createAccessToken(Long userId) {
         return JwtUtil.createToken(userId).getAccessToken();
     }
