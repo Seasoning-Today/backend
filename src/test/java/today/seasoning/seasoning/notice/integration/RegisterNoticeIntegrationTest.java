@@ -32,12 +32,11 @@ public class RegisterNoticeIntegrationTest extends BaseIntegrationTest {
     final String content = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";
 
     @Test
-    @Sql(statements = "INSERT INTO user (id, account_id, email, login_type, nickname, role) "
-        + "VALUES (547055053614975161, 'admin', 'admin@test.org', 'KAKAO', 'i_am_admin', 'ADMIN')")
+    @Sql(scripts = "classpath:data/insert_admin_user.sql")
     @DisplayName("성공 - 관리자 요청")
     void requestByAdmin() {
         //given
-        User admin = userRepository.findByIdOrElseThrow(547055053614975161L);
+        User admin = userRepository.findByIdOrElseThrow(1L);
 
         //when : 관리자가 공지사항 등록 요청 시
         ExtractableResponse<Response> response = post(url, admin.getId(), content);
@@ -51,11 +50,10 @@ public class RegisterNoticeIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @Sql(statements = "INSERT INTO user (id, account_id, email, login_type, nickname, role) "
-        + "VALUES (547055053614975161, 'manager', 'manager@test.org', 'KAKAO', 'i_am_manager', 'MANAGER')")
+    @Sql(scripts = "classpath:data/insert_manager_user.sql")
     @DisplayName("성공 - 매니저 요청")
     void requestByManager() {
-        User manager = userRepository.findByIdOrElseThrow(547055053614975161L);
+        User manager = userRepository.findByIdOrElseThrow(1L);
 
         //when : 매니저가 공지사항 등록 요청 시
         ExtractableResponse<Response> response = post(url, manager.getId(), content);
