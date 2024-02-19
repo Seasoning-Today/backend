@@ -1,7 +1,7 @@
 package today.seasoning.seasoning.solarterm.service;
 
-import static java.net.URLEncoder.*;
-import static java.nio.charset.StandardCharsets.*;
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -21,13 +21,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import today.seasoning.seasoning.common.aws.SnsService;
 import today.seasoning.seasoning.common.exception.CustomException;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.solarterm.domain.SolarTermRepository;
@@ -41,22 +39,9 @@ public class RegisterSolarTermsService {
     @Value("${OPEN_API_KEY}")
     private String API_KEY;
 
-    private final SnsService snsService;
     private final SolarTermRepository solarTermRepository;
 
-    @Scheduled(cron = "0 0 0 1 12 *")
-    public void doService() {
-        int nextYear = LocalDate.now().getYear() + 1;
-
-        try {
-            findAndRegisterSolarTermsOf(nextYear);
-            snsService.publish("[시즈닝] " + nextYear + "년 절기 등록 완료");
-        } catch (Exception e) {
-            snsService.publish("[시즈닝] ERROR - " + nextYear + "년 절기 등록 실패");
-        }
-    }
-
-    public void findAndRegisterSolarTermsOf(int year) {
+    public void doService(int year) {
         List<String> months = List.of("02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "01");
 
         try {
