@@ -16,14 +16,18 @@ import today.seasoning.seasoning.user.domain.UserRepository;
 @RequiredArgsConstructor
 public class SearchUserService {
 
-    private final FriendRequestRepository friendRequestRepository;
-    private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
+    private final FriendRequestRepository friendRequestRepository;
 
     @Transactional(readOnly = true)
     public SearchUserResult doService(Long userId, String friendAccountId) {
         User friend = userRepository.findByAccountId(friendAccountId)
-            .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "회원 조회 실패"));
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "검색 결과 없음"));
+
+        if (!friend.isSearchable()) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "검색 결과 없음");
+        }
 
         FriendshipStatus friendshipStatus = resolveFriendshipStatus(userId, friend);
 
@@ -53,5 +57,4 @@ public class SearchUserService {
 
         return FriendshipStatus.UNFRIEND;
     }
-
 }
