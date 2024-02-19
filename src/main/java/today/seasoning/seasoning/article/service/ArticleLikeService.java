@@ -39,7 +39,9 @@ public class ArticleLikeService {
 
 		articleLikeRepository.save(new ArticleLike(article, user));
 
-		applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
+		if (user != author) {
+			applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
+		}
 	}
 
 	public void cancelLike(Long userId, Long articleId) {
