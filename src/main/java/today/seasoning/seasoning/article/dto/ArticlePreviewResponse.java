@@ -15,7 +15,7 @@ import today.seasoning.seasoning.common.util.TsidUtil;
 
 @Getter
 @RequiredArgsConstructor
-public class FriendArticleDto {
+public class ArticlePreviewResponse {
 
 	private final String id;
 	private final int year;
@@ -23,16 +23,16 @@ public class FriendArticleDto {
 	private final String preview;
 	private final String image;
 
-	public static FriendArticleDto build(Article article) {
-		return new FriendArticleDto(
+	public static ArticlePreviewResponse build(Article article) {
+		return new ArticlePreviewResponse(
 			TsidUtil.toString(article.getId()),
 			article.getCreatedYear(),
 			article.getCreatedTerm(),
-			getPreview(article.getContents()),
-			getImage(article.getArticleImages()));
+			getContentsPreview(article.getContents()),
+			getFirstImageUrl(article.getArticleImages()));
 	}
 
-	private static String getPreview(String contents) {
+	private static String getContentsPreview(String contents) {
 		if (!StringUtils.hasLength(contents)) {
 			return "";
 		}
@@ -51,7 +51,7 @@ public class FriendArticleDto {
 		}
 	}
 
-	private static String getImage(List<ArticleImage> images) {
+	private static String getFirstImageUrl(List<ArticleImage> images) {
 		return images.stream()
 			.min(Comparator.comparingInt(ArticleImage::getSequence))
 			.map(ArticleImage::getUrl)

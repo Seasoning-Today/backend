@@ -7,14 +7,14 @@ import today.seasoning.seasoning.user.dto.UserProfileResponse;
 
 @Getter
 @RequiredArgsConstructor
-public class FindMyFriendsArticlesResult {
+public class FindFriendArticleResponse {
 
     private final UserProfileResponse profile;
-    private final FriendArticleDto article;
+    private final ArticlePreviewResponse article;
 
-    public static FindMyFriendsArticlesResult build(Article article) {
-        return new FindMyFriendsArticlesResult(
+    public static FindFriendArticleResponse build(Article article) {
+        return new FindFriendArticleResponse(
             UserProfileResponse.build(article.getUser()),
-            FriendArticleDto.build(article));
+            ArticlePreviewResponse.build(article));
     }
 }

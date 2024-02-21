@@ -6,19 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.article.domain.ArticleRepository;
-import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
+import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class FindMyFriendsArticlesService {
+public class FindFriendArticlesService {
 
     private final ArticleRepository articleRepository;
 
-    public List<FindMyFriendsArticlesResult> doService(Long userId, Long articleId, Integer pageSize) {
+    public List<FindFriendArticleResponse> doService(Long userId, Long articleId, Integer pageSize) {
         return articleRepository.findFriendArticles(userId, articleId, pageSize)
             .stream()
-            .map(FindMyFriendsArticlesResult::build)
+            .map(FindFriendArticleResponse::build)
             .collect(Collectors.toList());
     }
 }
