@@ -21,7 +21,6 @@ import java.util.List;
 public class Article extends BaseTimeEntity {
 
     @Id
-    @Column(name = "article_id")
     private Long id;
 
     @JoinColumn(name = "user_id")
