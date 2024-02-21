@@ -19,7 +19,7 @@ import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
-import today.seasoning.seasoning.article.dto.FindMyFriendsArticlesResult;
+import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
@@ -28,7 +28,7 @@ import today.seasoning.seasoning.article.service.FindArticleService;
 import today.seasoning.seasoning.article.service.FindCollageService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
-import today.seasoning.seasoning.article.service.FindMyFriendsArticlesService;
+import today.seasoning.seasoning.article.service.FindFriendArticlesService;
 import today.seasoning.seasoning.article.service.RegisterArticleService;
 import today.seasoning.seasoning.article.service.UpdateArticleService;
 import today.seasoning.seasoning.common.UserPrincipal;
@@ -47,7 +47,7 @@ public class ArticleController {
     private final FindMyArticlesByTermService findMyArticlesByTermService;
     private final ArticleLikeService articleLikeService;
     private final FindCollageService findCollageService;
-    private final FindMyFriendsArticlesService findMyFriendsArticlesService;
+    private final FindFriendArticlesService findFriendArticlesService;
 
     @PostMapping
     public ResponseEntity<String> registerArticle(
@@ -133,16 +133,16 @@ public class ArticleController {
     }
 
     @GetMapping("/friends")
-    public ResponseEntity<List<FindMyFriendsArticlesResult>> findMyFriendsArticles(
+    public ResponseEntity<List<FindFriendArticleResponse>> findMyFriendsArticles(
         @AuthenticationPrincipal UserPrincipal principal,
         @RequestParam(name = "lastId", defaultValue = "AzL8n0Y58m7") String lastArticleId,
         @RequestParam(name = "size", defaultValue = "10") Integer pageSize
     ) {
-        List<FindMyFriendsArticlesResult> findMyFriendsArticlesResults = findMyFriendsArticlesService.doFind(
+        List<FindFriendArticleResponse> response = findFriendArticlesService.doService(
             principal.getId(),
             TsidUtil.toLong(lastArticleId),
             pageSize);
 
-        return ResponseEntity.ok(findMyFriendsArticlesResults);
+        return ResponseEntity.ok(response);
     }
 }
