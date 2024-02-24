@@ -1,5 +1,6 @@
 package today.seasoning.seasoning.user.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import today.seasoning.seasoning.user.domain.User;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(title = "사용자 프로필 조회 응답")
 public class UserProfileResponse {
 
 	private String id;
