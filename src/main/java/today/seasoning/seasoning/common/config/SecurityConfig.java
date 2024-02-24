@@ -30,12 +30,13 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.authorizeRequests()
-            .antMatchers("/oauth/login/**", "/refresh", "/favicon.ico", "/monitoring/**").permitAll()
+            .antMatchers("/oauth/login/**", "/refresh", "/favicon.ico", "/monitoring/**"
+                    , "/swagger-ui/**", "/v3/api-docs/**", "/bus/v3/api-docs/**", "/api-docs/**").permitAll()
             .antMatchers(HttpMethod.GET, "/notice/**").permitAll()
+            .antMatchers("/v3/api-docs/**").permitAll()
             .antMatchers("/notice/**").hasAnyRole(Role.MANAGER.name(), Role.ADMIN.name())
             .antMatchers("/admin/**").hasRole(Role.ADMIN.name())
             .anyRequest().authenticated();
-
         return httpSecurity.build();
     }
 }

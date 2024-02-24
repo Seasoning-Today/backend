@@ -1,12 +1,15 @@
 package today.seasoning.seasoning.common;
 
 import java.io.Serializable;
+
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Getter;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.user.domain.Role;
 import today.seasoning.seasoning.user.domain.User;
 
 @Getter
+@Hidden
 public class UserPrincipal implements Serializable {
 
     private static final long serialVersionUID = 1L;
