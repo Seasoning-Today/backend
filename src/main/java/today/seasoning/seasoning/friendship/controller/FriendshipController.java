@@ -2,6 +2,14 @@ package today.seasoning.seasoning.friendship.controller;
 
 import java.util.List;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +35,7 @@ import today.seasoning.seasoning.friendship.service.UnfriendService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/friend")
+@Tag(name = "Friend", description = "친구 API Document")
 public class FriendshipController {
 
     private final UnfriendService unfriendService;
@@ -38,6 +47,11 @@ public class FriendshipController {
     private final DeclineFriendRequestService declineFriendRequestService;
 
     @PostMapping("/add")
+    @Operation(summary = "친구 신청", description = "다른 사용자에게 친구 요청을 보냅니다.", method = "POST", responses = {
+            @ApiResponse(responseCode = "200", description = "친구 신청 성공", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "409", description = "친구 신청 실패 (이미 친구이거나, 친구 신청을 받았거나, 친구 신청을 보낸 상태)", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "404", description = "친구 신청 실패 (사용자를 찾을 수 없음)", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
     public ResponseEntity<String> requestFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
@@ -51,6 +65,9 @@ public class FriendshipController {
     }
 
     @GetMapping("/list")
+    @Operation(summary = "친구 목록 조회", description = "특정 사용자의 친구 목록을 조회합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 특정 사용자의 친구 목록을 가져옴", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = FindUserFriendsResponse.class))))
+    })
     public ResponseEntity<List<FindUserFriendsResponse>> findUserFriends(@AuthenticationPrincipal UserPrincipal principal) {
         Long userId = principal.getId();
         List<FindUserFriendsResponse> response = findAllFriendsService.doService(userId);
@@ -58,6 +75,10 @@ public class FriendshipController {
     }
 
     @PostMapping("/add/accept")
+    @Operation(summary = "친구 신청 수락", description = "친구 신청을 수락합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "친구 신청 수락 성공", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "친구 신청 수락 실패", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
     public ResponseEntity<String> acceptFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
@@ -67,6 +88,10 @@ public class FriendshipController {
     }
 
     @DeleteMapping("/add/cancel")
+    @Operation(summary = "친구 신청 취소", description = "친구 신청을 취소합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "친구 신청 취소 성공", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "친구 신청 취소 실패 (사용자를 찾을 수 없음)", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
     public ResponseEntity<String> cancelFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
@@ -80,6 +105,10 @@ public class FriendshipController {
     }
 
     @DeleteMapping("/add/decline")
+    @Operation(summary = "친구 신청 거절", description = "친구 신청을 거절합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "친구 신청 거절 성공", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "친구 신청 거절 실패 (사용자를 찾을 수 없음)", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
     public ResponseEntity<String> declineFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
@@ -93,6 +122,10 @@ public class FriendshipController {
     }
 
     @DeleteMapping("/unfriend")
+    @Operation(summary = "친구 삭제", description = "친구를 삭제합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "친구 삭제 성공", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "친구 삭제 실패 (사용자를 찾을 수 없음)", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
     public ResponseEntity<String> deleteFriendship(
         @AuthenticationPrincipal UserPrincipal principal,
         @Valid @RequestBody UserIdDto userIdDto
@@ -105,6 +138,12 @@ public class FriendshipController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "친구 검색", description = "사용자를 검색합니다.", responses = {
+            @ApiResponse(responseCode = "200", description = "성공적으로 친구를 검색함", content = @Content(mediaType = "application/json", schema = @Schema(implementation = SearchUserResult.class))),
+            @ApiResponse(responseCode = "400", description = "사용자를 찾을 수 없음", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    })
+    @Parameter(name = "keyword", description = "검색할 사용자의 아이디", required = true, example = "linguu", schema = @Schema(type = "string")
+    )
     public ResponseEntity<SearchUserResult> searchFriend(
         @AuthenticationPrincipal UserPrincipal principal,
         @RequestParam("keyword") String friendAccountId
