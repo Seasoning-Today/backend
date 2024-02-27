@@ -1,5 +1,6 @@
 package today.seasoning.seasoning.article.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Comparator;
 import java.util.List;
@@ -38,11 +39,11 @@ public class ArticlePreviewResponse {
 		}
 
 		try {
-			ContentUnit[] contentUnits = new ObjectMapper().readValue(contents, ContentUnit[].class);
 			StringBuilder preview = new StringBuilder();
+			ArticleContent[] articleContents = new ObjectMapper().readValue(contents, ArticleContent[].class);
 
-			for (ContentUnit contentUnit : contentUnits) {
-				preview.append(contentUnit.text.replace("\n", "")).append(" ");
+			for (ArticleContent articleContent : articleContents) {
+				preview.append(articleContent.text.replace("\n", "")).append(" ");
 			}
 
 			return preview.substring(0, Math.min(preview.length() - 1, 100));
@@ -60,7 +61,8 @@ public class ArticlePreviewResponse {
 
 	@Getter
 	@Setter
-	private static class ContentUnit {
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	private static class ArticleContent {
 
 		private String type;
 		private String text;

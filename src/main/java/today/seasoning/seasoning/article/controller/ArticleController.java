@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import today.seasoning.seasoning.article.dto.ArticlePreviewResponse;
 import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
-import today.seasoning.seasoning.article.dto.FindMyArticlesByTermResult;
-import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
 import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
+import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
 import today.seasoning.seasoning.article.service.DeleteArticleService;
 import today.seasoning.seasoning.article.service.FindArticleService;
-import today.seasoning.seasoning.article.service.FindCollageService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
-import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
+import today.seasoning.seasoning.article.service.FindCollageService;
 import today.seasoning.seasoning.article.service.FindFriendArticlesService;
+import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
 import today.seasoning.seasoning.article.service.RegisterArticleService;
 import today.seasoning.seasoning.article.service.UpdateArticleService;
 import today.seasoning.seasoning.common.UserPrincipal;
@@ -97,12 +97,12 @@ public class ArticleController {
     }
 
     @GetMapping("/list/term/{term}")
-    public ResponseEntity<List<FindMyArticlesByTermResult>> findMyArticlesByTerm(
+    public ResponseEntity<List<ArticlePreviewResponse>> findMyArticlesByTerm(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Integer term
     ) {
-        List<FindMyArticlesByTermResult> result = findMyArticlesByTermService.doFind(principal.getId(), term);
-        return ResponseEntity.ok(result);
+        List<ArticlePreviewResponse> response = findMyArticlesByTermService.doService(principal.getId(), term);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("{articleId}/like")
