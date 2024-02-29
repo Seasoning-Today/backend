@@ -19,15 +19,16 @@ import today.seasoning.seasoning.article.dto.ArticlePreviewResponse;
 import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
 import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
+import today.seasoning.seasoning.article.dto.FindMyArticlesByTermCommand;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
 import today.seasoning.seasoning.article.service.DeleteArticleService;
 import today.seasoning.seasoning.article.service.FindArticleService;
-import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
 import today.seasoning.seasoning.article.service.FindCollageService;
 import today.seasoning.seasoning.article.service.FindFriendArticlesService;
+import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
 import today.seasoning.seasoning.article.service.RegisterArticleService;
 import today.seasoning.seasoning.article.service.UpdateArticleService;
@@ -96,12 +97,15 @@ public class ArticleController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/list/term/{term}")
+    @GetMapping("/list/term")
     public ResponseEntity<List<ArticlePreviewResponse>> findMyArticlesByTerm(
         @AuthenticationPrincipal UserPrincipal principal,
-        @PathVariable Integer term
+        @RequestParam(name = "lastId", defaultValue = "AzL8n0Y58m7") String lastArticleId,
+        @RequestParam(name = "size", defaultValue = "10") Integer pageSize,
+        @RequestParam Integer term
     ) {
-        List<ArticlePreviewResponse> response = findMyArticlesByTermService.doService(principal.getId(), term);
+        FindMyArticlesByTermCommand command = FindMyArticlesByTermCommand.build(principal, lastArticleId, pageSize, term);
+        List<ArticlePreviewResponse> response = findMyArticlesByTermService.doService(command);
         return ResponseEntity.ok(response);
     }
 

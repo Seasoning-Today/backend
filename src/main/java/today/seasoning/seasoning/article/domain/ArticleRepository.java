@@ -10,8 +10,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 	@Query("SELECT a From Article a WHERE a.user.id = :userId AND a.createdYear = :year")
 	List<Article> findByUserIdAndYear(@Param("userId") Long userId, @Param("year") int year);
 
-	@Query("SELECT a From Article a WHERE a.user.id = :userId AND a.createdTerm = :term")
-	List<Article> findByUserIdAndTerm(@Param("userId") Long userId, @Param("term") int term);
+	@Query("SELECT a From Article a WHERE a.user.id = :userId AND a.createdTerm = :term ORDER BY a.id DESC")
+	List<Article> findByTerm(@Param("userId") Long userId, @Param("term") int term);
 
 	@Query("SELECT COUNT(a) > 0 FROM Article a WHERE a.user.id = :userId AND a.createdYear = :year AND a.createdTerm = :term")
 	boolean checkArticleRegistered(@Param("userId") Long userId, @Param("year") int year, @Param("term") int term);
@@ -23,4 +23,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 		"ORDER BY a.id DESC " +
 		"LIMIT :size", nativeQuery = true)
 	List<Article> findFriendArticles(@Param("userId") Long userId, @Param("articleId")Long lastArticleId, @Param("size") int pageSize);
+
+	@Query(value = "SELECT * FROM article WHERE user_id = :userId AND id < :articleId ORDER BY id DESC LIMIT :size", nativeQuery = true)
+	List<Article> findByPage(@Param("userId") Long userId, @Param("articleId") Long lastArticleId, @Param("size") int pageSize);
+
 }

@@ -53,6 +53,10 @@ public class ArticlePreviewResponse {
 	}
 
 	private static String getFirstImageUrl(List<ArticleImage> images) {
+		if (images == null || images.isEmpty()) {
+			return null;
+		}
+
 		return images.stream()
 			.min(Comparator.comparingInt(ArticleImage::getSequence))
 			.map(ArticleImage::getUrl)
