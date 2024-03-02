@@ -9,7 +9,7 @@ import today.seasoning.seasoning.common.BaseTimeEntity;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Fortune extends BaseTimeEntity {
+public class Fortune{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
