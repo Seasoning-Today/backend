@@ -1,43 +1,44 @@
 package today.seasoning.seasoning.fortune.domain;
 
+import java.time.LocalDate;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
-import today.seasoning.seasoning.user.domain.User;
-
-import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FortuneUserRelation extends BaseTimeEntity {
 
     @Id
     private Long id;
 
-    @JoinColumn(name = "user_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fortune_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
     private Fortune fortune;
 
-    public void updateFortune(Fortune fortune) {
+    public FortuneUserRelation(Long userId, Fortune fortune) {
+        this.id = TsidUtil.createLong();
+        this.userId = userId;
         this.fortune = fortune;
     }
 
-    public FortuneUserRelation(User user, Fortune fortune) {
-        this.id = TsidUtil.createLong();
-        this.user = user;
+    public void changeFortune(Fortune fortune) {
         this.fortune = fortune;
     }
-    public LocalDate getDate() {
-        if (getModifiedDate() != null)
-            return getModifiedDate().toLocalDate();
-        else
-            return getCreatedDate().toLocalDate();
+
+    public LocalDate getLastModifiedDate() {
+        return getModifiedDate().toLocalDate();
     }
 }

@@ -1,5 +1,8 @@
 package today.seasoning.seasoning.fortune.service;
 
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,47 +10,32 @@ import today.seasoning.seasoning.fortune.domain.Fortune;
 import today.seasoning.seasoning.fortune.domain.FortuneRepository;
 import today.seasoning.seasoning.fortune.domain.FortuneUserRelation;
 import today.seasoning.seasoning.fortune.domain.FortuneUserRelationRepository;
-import today.seasoning.seasoning.user.domain.User;
-import today.seasoning.seasoning.user.domain.UserRepository;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Random;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class FindFortuneService {
+
+    private static final SecureRandom secureRandom = new SecureRandom();
+
     private final FortuneRepository fortuneRepository;
     private final FortuneUserRelationRepository fortuneUserRelationRepository;
-    private final UserRepository userRepository;
 
     public String doService(Long userId) {
-        User user = userRepository.findById(userId).get();
-        FortuneUserRelation fortuneUserRelation = fortuneUserRelationRepository.findByUser(user).orElse(null);
+        List<Fortune> fortunes = fortuneRepository.findAll();
 
-        LocalDate today = LocalDate.now();
-        LocalDate getFortuneDate;
-        Fortune fortune;
+        FortuneUserRelation fortuneUserRelation = fortuneUserRelationRepository.findByUserId(userId)
+            .orElseGet(() -> fortuneUserRelationRepository.save(new FortuneUserRelation(userId, getRandomFortune(fortunes))));
 
-        if (fortuneUserRelation != null) {
-            getFortuneDate = fortuneUserRelation.getDate();
-            if (getFortuneDate.isBefore(today)) {
-                fortune = findRandomFortune();
-                fortuneUserRelation.updateFortune(fortune);
-            } else
-                fortune = fortuneUserRelation.getFortune();
-        } else {
-            fortune = findRandomFortune();
-            fortuneUserRelationRepository.save(new FortuneUserRelation(user, fortune));
+        if (fortuneUserRelation.getLastModifiedDate().isBefore(LocalDate.now())) {
+            fortunes.remove(fortuneUserRelation.getFortune());
+            fortuneUserRelation.changeFortune(getRandomFortune(fortunes));
         }
-        return fortune.getContent();
+
+        return fortuneUserRelation.getFortune().getContent();
     }
 
-    private Fortune findRandomFortune() {
-        List<Fortune> all = fortuneRepository.findAll();
-        Random random = new Random();
-        Fortune fortune = all.get(random.nextInt(all.size()));
-        return fortune;
+    private Fortune getRandomFortune(List<Fortune> fortunes) {
+        return fortunes.get(secureRandom.nextInt(fortunes.size()));
     }
 }
