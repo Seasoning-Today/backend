@@ -1,5 +1,6 @@
 package today.seasoning.seasoning.fortune.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,7 +9,7 @@ import today.seasoning.seasoning.common.BaseTimeEntity;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Fortune extends BaseTimeEntity {
 
     @Id
