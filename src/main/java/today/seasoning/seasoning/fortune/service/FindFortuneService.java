@@ -22,7 +22,6 @@ public class FindFortuneService {
     private final FortuneUserRelationRepository fortuneUserRelationRepository;
     private final UserRepository userRepository;
 
-
     public String doService(Long userId) {
         User user = userRepository.findById(userId).get();
         FortuneUserRelation fortuneUserRelation = fortuneUserRelationRepository.findByUser(user).orElse(null);
@@ -31,7 +30,6 @@ public class FindFortuneService {
         LocalDate getFortuneDate;
         Fortune fortune;
 
-        // 운세가 있고 오늘 조회한것이라면 기존 운세 반환
         if (fortuneUserRelation != null) {
             getFortuneDate = fortuneUserRelation.getDate();
             if (getFortuneDate.isBefore(today)) {
@@ -39,7 +37,7 @@ public class FindFortuneService {
                 fortuneUserRelation.updateFortune(fortune);
             } else
                 fortune = fortuneUserRelation.getFortune();
-        } else { // 운세가 아예 없다면 새로 저장
+        } else {
             fortune = findRandomFortune();
             fortuneUserRelationRepository.save(new FortuneUserRelation(user, fortune));
         }

@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import today.seasoning.seasoning.common.BaseTimeEntity;
 
 @Entity
 @Getter
