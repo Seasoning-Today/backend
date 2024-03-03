@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import today.seasoning.seasoning.solarterm.dto.FindSolarTermInfoResponse;
@@ -27,6 +28,12 @@ public class SolarTermController {
     public ResponseEntity<FindSolarTermInfoResponse> findSolarTermInfo() {
         FindSolarTermInfoResponse solarTermInfoResponse = solarTermService.findSolarTermInfo();
         return ResponseEntity.ok(solarTermInfoResponse);
+    }
+
+    @PutMapping("/admin/solarTerm/refresh")
+    public ResponseEntity<Void> refreshSolarTerm() {
+        solarTermService.updateSolarTerms();
+        return ResponseEntity.ok().build();
     }
 
 }

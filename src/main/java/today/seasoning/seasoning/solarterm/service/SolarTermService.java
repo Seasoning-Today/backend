@@ -20,7 +20,6 @@ import today.seasoning.seasoning.solarterm.dto.FindSolarTermInfoResponse;
 @RequiredArgsConstructor
 public class SolarTermService {
 
-
     @Value("${ARTICLE-REGISTRATION-PERIOD}")
     private int ARTICLE_REGISTRATION_PERIOD;
 
@@ -42,7 +41,7 @@ public class SolarTermService {
         updateSolarTerms();
     }
 
-    protected void updateSolarTerms() {
+    public void updateSolarTerms() {
         List<SolarTerm> solarTerms = solarTermRepository.findAllByOrderByDateAsc();
 
         LocalDate today = LocalDate.now();
