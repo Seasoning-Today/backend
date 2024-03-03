@@ -9,6 +9,8 @@ import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.aws.UploadFileInfo;
 import today.seasoning.seasoning.common.util.TsidUtil;
@@ -23,6 +25,7 @@ public class ArticleImage extends BaseTimeEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "article_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Article article;
 
 	@Column(nullable = false)
