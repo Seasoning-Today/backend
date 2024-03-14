@@ -56,7 +56,7 @@ public class ArticleController {
         @RequestPart(name = "images", required = false) List<MultipartFile> images,
         @RequestPart("request") @Valid RegisterArticleRequest request
     ) {
-        Long articleId = registerArticleService.doRegister(request.buildCommand(principal, images));
+        Long articleId = registerArticleService.doService(request.buildCommand(principal, images));
         return ResponseEntity.ok(TsidUtil.toString(articleId));
     }
 
