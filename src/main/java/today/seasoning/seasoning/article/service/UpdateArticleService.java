@@ -34,9 +34,7 @@ public class UpdateArticleService {
 
     public void doUpdate(UpdateArticleCommand command) {
         Article article = articleRepository.findByIdOrElseThrow(command.getArticleId());
-
         checkRequestValid(article, command);
-
         article.update(command.isPublished(), command.getContents());
 
         if (command.isImageModified()) {
@@ -77,8 +75,7 @@ public class UpdateArticleService {
                 continue;
             }
             UploadFileInfo fileInfo = s3Service.uploadFile(image);
-            ArticleImage articleImage = ArticleImage.build(article, fileInfo, sequence++);
-            articleImageRepository.save(articleImage);
+            articleImageRepository.save(ArticleImage.build(article, fileInfo, sequence++));
         }
     }
 }
