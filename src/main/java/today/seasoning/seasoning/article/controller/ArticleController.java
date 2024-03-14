@@ -20,7 +20,7 @@ import today.seasoning.seasoning.article.dto.ArticleResponse;
 import today.seasoning.seasoning.article.dto.FindCollageResult;
 import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByTermCommand;
-import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
+import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResponse;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
@@ -89,12 +89,12 @@ public class ArticleController {
     }
 
     @GetMapping("/list/year/{year}")
-    public ResponseEntity<List<FindMyArticlesByYearResult>> findMyArticlesByYear(
+    public ResponseEntity<List<FindMyArticlesByYearResponse>> findMyArticlesByYear(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Integer year
     ) {
-        List<FindMyArticlesByYearResult> result = findMyArticlesByYearService.doFind(principal.getId(), year);
-        return ResponseEntity.ok(result);
+        List<FindMyArticlesByYearResponse> response = findMyArticlesByYearService.doFind(principal.getId(), year);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/list/term")
