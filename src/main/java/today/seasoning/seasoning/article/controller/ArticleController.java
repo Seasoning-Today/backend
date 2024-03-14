@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.article.dto.ArticlePreviewResponse;
 import today.seasoning.seasoning.article.dto.ArticleResponse;
-import today.seasoning.seasoning.article.dto.FindCollageResult;
+import today.seasoning.seasoning.article.dto.FindCollageCommand;
+import today.seasoning.seasoning.article.dto.FindCollageResponse;
 import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByTermCommand;
-import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResult;
+import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResponse;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
 import today.seasoning.seasoning.article.service.ArticleLikeService;
@@ -56,7 +57,7 @@ public class ArticleController {
         @RequestPart(name = "images", required = false) List<MultipartFile> images,
         @RequestPart("request") @Valid RegisterArticleRequest request
     ) {
-        Long articleId = registerArticleService.doRegister(request.buildCommand(principal, images));
+        Long articleId = registerArticleService.doService(request.buildCommand(principal, images));
         return ResponseEntity.ok(TsidUtil.toString(articleId));
     }
 
@@ -89,12 +90,12 @@ public class ArticleController {
     }
 
     @GetMapping("/list/year/{year}")
-    public ResponseEntity<List<FindMyArticlesByYearResult>> findMyArticlesByYear(
+    public ResponseEntity<List<FindMyArticlesByYearResponse>> findMyArticlesByYear(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Integer year
     ) {
-        List<FindMyArticlesByYearResult> result = findMyArticlesByYearService.doFind(principal.getId(), year);
-        return ResponseEntity.ok(result);
+        List<FindMyArticlesByYearResponse> response = findMyArticlesByYearService.doFind(principal.getId(), year);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/list/term")
@@ -128,12 +129,13 @@ public class ArticleController {
     }
 
     @GetMapping("/collage")
-    public ResponseEntity<List<FindCollageResult>> findCollage(
+    public ResponseEntity<List<FindCollageResponse>> findCollage(
         @AuthenticationPrincipal UserPrincipal principal,
         @RequestParam("year") Integer year
     ) {
-        List<FindCollageResult> collage = findCollageService.doFind(principal.getId(), year);
-        return ResponseEntity.ok(collage);
+        FindCollageCommand command = new FindCollageCommand(principal.getId(), year);
+        List<FindCollageResponse> response = findCollageService.doFind(command);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/friends")

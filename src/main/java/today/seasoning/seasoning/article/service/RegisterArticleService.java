@@ -34,19 +34,14 @@ public class RegisterArticleService {
     private int ARTICLE_IMAGES_LIMIT;
 
     @Transactional
-    public Long doRegister(RegisterArticleCommand command) {
+    public Long doService(RegisterArticleCommand command) {
         Article article = registerArticle(command);
-
-        if (command.getImages() != null && !command.getImages().isEmpty()) {
-            registerArticleImages(article, command.getImages());
-        }
-
+        registerArticleImages(article, command.getImages());
         return article.getId();
     }
 
     private Article registerArticle(RegisterArticleCommand command) {
         User user = userRepository.findByIdOrElseThrow(command.getUserId());
-
         SolarTerm solarTerm = solarTermService.findRecordSolarTerm()
             .orElseThrow(() -> new CustomException(HttpStatus.FORBIDDEN, "등록 기간이 아닙니다."));
 
@@ -54,24 +49,24 @@ public class RegisterArticleService {
             throw new CustomException(HttpStatus.CONFLICT, "이미 등록되었습니다.");
         }
 
-        Article article = new Article(user, command.isPublished(), solarTerm.getDate().getYear(),
-            solarTerm.getSequence(), command.getContents());
-
-        return articleRepository.save(article);
+        return articleRepository.save(Article.build(user, command, solarTerm));
     }
 
     private void registerArticleImages(Article article, List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) {
+            return;
+        }
+
         if (images.size() > ARTICLE_IMAGES_LIMIT) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "이미지 개수 초과");
         }
 
         int sequence = 1;
         for (MultipartFile image : images) {
-            if (image == null || image.isEmpty()) {
-                continue;
+            if (image != null && !image.isEmpty()) {
+                UploadFileInfo fileInfo = s3Service.uploadFile(image);
+                articleImageRepository.save(ArticleImage.build(article, fileInfo, sequence++));
             }
-            UploadFileInfo fileInfo = s3Service.uploadFile(image);
-            articleImageRepository.save(ArticleImage.build(article, fileInfo, sequence++));
         }
     }
 }

@@ -27,37 +27,29 @@ public class ArticleLikeService {
 	private final ApplicationEventPublisher applicationEventPublisher;
 
 	public void doLike(Long userId, Long articleId) {
+		Article article = articleRepository.findByIdOrElseThrow(articleId);
 		User user = userRepository.findByIdOrElseThrow(userId);
-		Article article = findArticleOrThrow(articleId);
-		User author = article.getUser();
 
 		validatePermission(userId, article);
 
-		if (articleLikeRepository.findByArticleAndUser(articleId, userId).isPresent()) {
-			throw new CustomException(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다.");
-		}
+		if (articleLikeRepository.findByArticleAndUser(articleId, userId).isEmpty()) {
+			User author = article.getUser();
+			articleLikeRepository.save(new ArticleLike(article, user));
 
-		articleLikeRepository.save(new ArticleLike(article, user));
-
-		if (user != author) {
-			applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
+			if (user != author) {
+				applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
+			}
 		}
 	}
 
 	public void cancelLike(Long userId, Long articleId) {
-		Article article = findArticleOrThrow(articleId);
+		Article article = articleRepository.findByIdOrElseThrow(articleId);
 
 		validatePermission(userId, article);
 
-		ArticleLike articleLike = articleLikeRepository.findByArticleAndUser(articleId, userId)
-			.orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "좋아요를 누르지 않았습니다"));
-
-		articleLikeRepository.delete(articleLike);
-	}
-
-	private Article findArticleOrThrow(Long articleId) {
-		return articleRepository.findById(articleId)
-			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
+		if(articleLikeRepository.findByArticleAndUser(articleId, userId).isPresent()) {
+			articleLikeRepository.deleteById(articleId);
+		}
 	}
 
 	private void validatePermission(Long userId, Article article) {

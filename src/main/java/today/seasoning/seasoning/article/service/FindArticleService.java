@@ -19,11 +19,8 @@ public class FindArticleService {
     private final CheckFriendshipService checkFriendshipService;
 
     public ArticleResponse doFind(Long userId, Long articleId) {
-        Article article = articleRepository.findById(articleId)
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
-
+        Article article = articleRepository.findByIdOrElseThrow(articleId);
         validatePermission(userId, article);
-
         return ArticleResponse.build(userId, article);
     }
 

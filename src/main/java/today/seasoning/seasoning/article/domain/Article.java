@@ -1,18 +1,28 @@
 package today.seasoning.seasoning.article.domain;
 
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import today.seasoning.seasoning.article.dto.RegisterArticleCommand;
 import today.seasoning.seasoning.common.BaseTimeEntity;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.user.domain.User;
-
-import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -64,5 +74,9 @@ public class Article extends BaseTimeEntity {
 
     public boolean isCreatedAt(SolarTerm solarTerm) {
         return createdYear == solarTerm.getYear() && createdTerm == solarTerm.getSequence();
+    }
+
+    public static Article build(User user, RegisterArticleCommand command, SolarTerm solarTerm) {
+        return new Article(user, command.isPublished(), solarTerm.getYear(), solarTerm.getSequence(), command.getContents());
     }
 }
