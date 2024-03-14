@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import today.seasoning.seasoning.article.dto.ArticlePreviewResponse;
 import today.seasoning.seasoning.article.dto.ArticleResponse;
-import today.seasoning.seasoning.article.dto.FindCollageResult;
+import today.seasoning.seasoning.article.dto.FindCollageCommand;
+import today.seasoning.seasoning.article.dto.FindCollageResponse;
 import today.seasoning.seasoning.article.dto.FindFriendArticleResponse;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByTermCommand;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResponse;
@@ -128,12 +129,13 @@ public class ArticleController {
     }
 
     @GetMapping("/collage")
-    public ResponseEntity<List<FindCollageResult>> findCollage(
+    public ResponseEntity<List<FindCollageResponse>> findCollage(
         @AuthenticationPrincipal UserPrincipal principal,
         @RequestParam("year") Integer year
     ) {
-        List<FindCollageResult> collage = findCollageService.doFind(principal.getId(), year);
-        return ResponseEntity.ok(collage);
+        FindCollageCommand command = new FindCollageCommand(principal.getId(), year);
+        List<FindCollageResponse> response = findCollageService.doFind(command);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/friends")
