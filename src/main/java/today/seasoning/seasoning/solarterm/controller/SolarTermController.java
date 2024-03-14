@@ -18,21 +18,27 @@ public class SolarTermController {
     private final SolarTermService solarTermService;
     private final RegisterSolarTermsService registerSolarTermsService;
 
-    @PostMapping("/admin/solarTerm")
-    public ResponseEntity<Void> registerSolarTerms(@RequestParam("year") int year) {
-        registerSolarTermsService.doService(year);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/solarTerm")
     public ResponseEntity<FindSolarTermInfoResponse> findSolarTermInfo() {
         FindSolarTermInfoResponse solarTermInfoResponse = solarTermService.findSolarTermInfo();
         return ResponseEntity.ok(solarTermInfoResponse);
     }
 
+    @PostMapping("/admin/solarTerm")
+    public ResponseEntity<Void> registerSolarTerms(@RequestParam("year") int year) {
+        registerSolarTermsService.doService(year);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/admin/solarTerm/refresh")
     public ResponseEntity<Void> refreshSolarTerm() {
         solarTermService.updateSolarTerms();
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/admin/article_registration_period")
+    public ResponseEntity<Void> changeArticleRegistrationPeriod(@RequestParam("value") int period) {
+        solarTermService.changeArticleRegistrationPeriod(period);
         return ResponseEntity.ok().build();
     }
 

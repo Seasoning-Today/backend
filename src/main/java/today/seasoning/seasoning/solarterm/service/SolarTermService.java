@@ -81,4 +81,9 @@ public class SolarTermService {
             recordSolarTerm.orElse(null),
             ARTICLE_REGISTRATION_PERIOD);
     }
+
+    public void changeArticleRegistrationPeriod(int period) {
+        this.ARTICLE_REGISTRATION_PERIOD = period;
+        updateSolarTerms();
+    }
 }
