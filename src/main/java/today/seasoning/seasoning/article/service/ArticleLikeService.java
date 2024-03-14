@@ -28,7 +28,7 @@ public class ArticleLikeService {
 
 	public void doLike(Long userId, Long articleId) {
 		User user = userRepository.findByIdOrElseThrow(userId);
-		Article article = findArticleOrThrow(articleId);
+		Article article = articleRepository.findByIdOrElseThrow(articleId);
 		User author = article.getUser();
 
 		validatePermission(userId, article);
@@ -45,7 +45,7 @@ public class ArticleLikeService {
 	}
 
 	public void cancelLike(Long userId, Long articleId) {
-		Article article = findArticleOrThrow(articleId);
+		Article article = articleRepository.findByIdOrElseThrow(articleId);
 
 		validatePermission(userId, article);
 
@@ -53,11 +53,6 @@ public class ArticleLikeService {
 			.orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "좋아요를 누르지 않았습니다"));
 
 		articleLikeRepository.delete(articleLike);
-	}
-
-	private Article findArticleOrThrow(Long articleId) {
-		return articleRepository.findById(articleId)
-			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
 	}
 
 	private void validatePermission(Long userId, Article article) {

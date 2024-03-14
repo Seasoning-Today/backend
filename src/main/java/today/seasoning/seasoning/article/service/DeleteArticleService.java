@@ -20,24 +20,14 @@ public class DeleteArticleService {
 	private final ArticleRepository articleRepository;
 
 	public void doDelete(Long userId, Long articleId) {
-		Article article = findArticle(articleId);
-
+		Article article = articleRepository.findByIdOrElseThrow(articleId);
 		validatePermission(userId, article);
-
 		deleteUploadedImages(article.getArticleImages());
-
 		articleRepository.delete(article);
 	}
 
-	private Article findArticle(Long articleId) {
-		return articleRepository.findById(articleId)
-			.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
-	}
-
 	private void validatePermission(Long userId, Article article) {
-		Long authorId = article.getUser().getId();
-
-		if (!authorId.equals(userId)) {
+		if (!article.getUser().getId().equals(userId)) {
 			throw new CustomException(HttpStatus.FORBIDDEN, "권한 없음");
 		}
 	}

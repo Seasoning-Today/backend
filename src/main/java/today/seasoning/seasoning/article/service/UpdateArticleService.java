@@ -33,8 +33,7 @@ public class UpdateArticleService {
     private int ARTICLE_IMAGES_LIMIT;
 
     public void doUpdate(UpdateArticleCommand command) {
-        Article article = articleRepository.findById(command.getArticleId())
-            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "기록장 조회 실패"));
+        Article article = articleRepository.findByIdOrElseThrow(command.getArticleId());
 
         checkRequestValid(article, command);
 
