@@ -37,19 +37,17 @@ public class ArticleLikeService {
 			articleLikeRepository.save(new ArticleLike(article, user));
 
 			if (user != author) {
-				applicationEventPublisher.publishEvent(new ArticleLikedEvent(user.getId(), author.getId(), articleId));
+				ArticleLikedEvent articleLikedEvent = new ArticleLikedEvent(user.getId(), author.getId(), articleId);
+				applicationEventPublisher.publishEvent(articleLikedEvent);
 			}
 		}
 	}
 
 	public void cancelLike(Long userId, Long articleId) {
 		Article article = articleRepository.findByIdOrElseThrow(articleId);
-
 		validatePermission(userId, article);
-
-		if(articleLikeRepository.findByArticleAndUser(articleId, userId).isPresent()) {
-			articleLikeRepository.deleteById(articleId);
-		}
+		articleLikeRepository.findByArticleAndUser(articleId, userId)
+			.ifPresent(articleLike -> articleLikeRepository.deleteById(articleLike.getId()));
 	}
 
 	private void validatePermission(Long userId, Article article) {
