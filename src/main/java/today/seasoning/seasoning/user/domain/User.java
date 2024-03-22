@@ -53,7 +53,7 @@ public class User extends BaseTimeEntity {
         this.id = TsidCreator.getTsid().toLong();
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
-        this.accountId = TsidCreator.getTsid().toString(); // 최초 랜덤값 부여
+        this.accountId = TsidCreator.getTsid().toString().toLowerCase(); // 최초 랜덤값 부여
         this.email = email;
         this.loginType = loginType;
         this.role = Role.USER;
