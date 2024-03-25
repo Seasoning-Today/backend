@@ -2,6 +2,7 @@ package today.seasoning.seasoning.notice.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class Notice extends BaseTimeEntity {
     @Id
     private Long id;
 
+    @Lob
     private String content;
 
     public Notice(String content) {
