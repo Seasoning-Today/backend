@@ -74,6 +74,29 @@ public class RegisterArticleLikeIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("성공 - 좋아요 신규 요청(자신의 비공개 기록장)")
+    void test5() {
+        //given
+        User user = userRepository.save(new User("nickname", "https://test.org/user0.jpg", "user@email.com", LoginType.KAKAO));
+        Article article = articleRepository.save(new Article(user, true, 2024, 1, "contents"));
+
+        //when : 자신의 비공개 기록장에 좋아요 요청 시
+        String url = "/article/" + TsidUtil.toString(article.getId()) + "/like";
+        ExtractableResponse<Response> response = post(url, user.getId());
+
+        //then
+        softAssertions.assertThat(response.statusCode()).isEqualTo(200);
+
+        softAssertions.assertThat(articleLikeRepository.findByArticleAndUser(article.getId(), user.getId()))
+            .as("해당 기록장에 대한 회원의 좋아요가 저장되어야 한다")
+            .isPresent();
+
+        softAssertions.assertThat(userNotificationRepository.count())
+            .as("자신의 기록장에 누른 좋아요는 알림이 발생하지 않아야 한다")
+            .isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("성공 - 좋아요 신규 요청(친구의 공개 기록장)")
     void test2() {
         //given
@@ -108,24 +131,6 @@ public class RegisterArticleLikeIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("실패 - 좋아요 신규 요청(타인의 기록장)")
-    void test3() {
-        //given
-        User user = userRepository.save(new User("nickname1", "https://test.org/user0.jpg", "user1@email.com", LoginType.KAKAO));
-        User stranger = userRepository.save(new User("nickname2", "https://test.org/user1.jpg", "user2@email.com", LoginType.KAKAO));
-        Article strangerArticle = articleRepository.save(new Article(stranger, true, 2024, 1, "contents"));
-
-        //when : 친구가 아닌 회원의 기록장에 좋아요 요청 시
-        String url = "/article/" + TsidUtil.toString(strangerArticle.getId()) + "/like";
-        ExtractableResponse<Response> response = post(url, user.getId());
-
-        //then : 해당 요청은 거부되어야 한다
-        softAssertions.assertThat(response.statusCode()).isNotEqualTo(200);
-        softAssertions.assertThat(articleLikeRepository.count()).isEqualTo(0);
-        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(0);
-    }
-
-    @Test
     @DisplayName("실패 - 좋아요 신규 요청(친구의 비공개 기록장)")
     void test4() {
         //given
@@ -145,26 +150,21 @@ public class RegisterArticleLikeIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("성공 - 좋아요 신규 요청(자신의 비공개 기록장)")
-    void test5() {
+    @DisplayName("실패 - 좋아요 신규 요청(타인의 기록장)")
+    void test3() {
         //given
-        User user = userRepository.save(new User("nickname", "https://test.org/user0.jpg", "user@email.com", LoginType.KAKAO));
-        Article article = articleRepository.save(new Article(user, true, 2024, 1, "contents"));
+        User user = userRepository.save(new User("nickname1", "https://test.org/user0.jpg", "user1@email.com", LoginType.KAKAO));
+        User stranger = userRepository.save(new User("nickname2", "https://test.org/user1.jpg", "user2@email.com", LoginType.KAKAO));
+        Article strangerArticle = articleRepository.save(new Article(stranger, true, 2024, 1, "contents"));
 
-        //when : 자신의 비공개 기록장에 좋아요 요청 시
-        String url = "/article/" + TsidUtil.toString(article.getId()) + "/like";
+        //when : 친구가 아닌 회원의 기록장에 좋아요 요청 시
+        String url = "/article/" + TsidUtil.toString(strangerArticle.getId()) + "/like";
         ExtractableResponse<Response> response = post(url, user.getId());
 
-        //then
-        softAssertions.assertThat(response.statusCode()).isEqualTo(200);
-
-        softAssertions.assertThat(articleLikeRepository.findByArticleAndUser(article.getId(), user.getId()))
-            .as("해당 기록장에 대한 회원의 좋아요가 저장되어야 한다")
-            .isPresent();
-
-        softAssertions.assertThat(userNotificationRepository.count())
-            .as("자신의 기록장에 누른 좋아요는 알림이 발생하지 않아야 한다")
-            .isEqualTo(0);
+        //then : 해당 요청은 거부되어야 한다
+        softAssertions.assertThat(response.statusCode()).isNotEqualTo(200);
+        softAssertions.assertThat(articleLikeRepository.count()).isEqualTo(0);
+        softAssertions.assertThat(userNotificationRepository.count()).isEqualTo(0);
     }
 
     @Test
