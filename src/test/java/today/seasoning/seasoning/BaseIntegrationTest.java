@@ -75,6 +75,15 @@ public class BaseIntegrationTest {
             .then().log().all().extract();
     }
 
+    protected ExtractableResponse<Response> post(String url, Long userId) {
+        return RestAssured
+            .given().log().all()
+            .contentType("application/json")
+            .header("Authorization", "Bearer " + createAccessToken(userId))
+            .when().post(url)
+            .then().log().all().extract();
+    }
+
     protected ExtractableResponse<Response> post(String url, Long userId, JSONObject jsonBody) {
         return RestAssured
             .given().log().all()
