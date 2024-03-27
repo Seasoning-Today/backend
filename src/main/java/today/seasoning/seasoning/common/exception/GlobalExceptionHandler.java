@@ -1,5 +1,7 @@
 package today.seasoning.seasoning.common.exception;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +70,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception e) {
-        logger.error("Exception: {}", e.getMessage());
+        StringWriter errors = new StringWriter();
+        e.printStackTrace(new PrintWriter(errors));
+        logger.error(errors.toString());
         ErrorResponse errorResponse = new ErrorResponse("예상치 못한 오류 발생");
         return ResponseEntity.badRequest().body(errorResponse);
     }
