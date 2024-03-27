@@ -31,7 +31,6 @@ public class CipherUtil {
         if (plainText == null) {
             return null;
         }
-
         try {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
             byte[] encrypted = cipher.doFinal(plainText.getBytes(UTF_8));
@@ -45,7 +44,6 @@ public class CipherUtil {
         if (encodedText == null) {
             return null;
         }
-
         try {
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
             byte[] decoded = cipher.doFinal(Base64.decodeBase64(encodedText));
