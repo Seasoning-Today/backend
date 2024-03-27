@@ -3,7 +3,6 @@ package today.seasoning.seasoning.article.domain;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -21,7 +20,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import today.seasoning.seasoning.article.dto.RegisterArticleCommand;
 import today.seasoning.seasoning.common.BaseTimeEntity;
-import today.seasoning.seasoning.common.cipher.CryptoConverter;
 import today.seasoning.seasoning.common.util.TsidUtil;
 import today.seasoning.seasoning.solarterm.domain.SolarTerm;
 import today.seasoning.seasoning.user.domain.User;
@@ -51,7 +49,6 @@ public class Article extends BaseTimeEntity {
     private int createdTerm;
 
     @Lob
-    @Convert(converter = CryptoConverter.class)
     private String contents;
 
     @OneToMany(mappedBy = "article", cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
