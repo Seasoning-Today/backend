@@ -29,4 +29,9 @@ spring:
       on-profile: prod
     import: secret/application-prod-config.yml
 
-
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: secret/application-dev-config.yml
