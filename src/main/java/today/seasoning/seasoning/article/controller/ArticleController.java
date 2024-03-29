@@ -24,13 +24,14 @@ import today.seasoning.seasoning.article.dto.FindMyArticlesByTermCommand;
 import today.seasoning.seasoning.article.dto.FindMyArticlesByYearResponse;
 import today.seasoning.seasoning.article.dto.RegisterArticleRequest;
 import today.seasoning.seasoning.article.dto.UpdateArticleRequest;
-import today.seasoning.seasoning.article.service.ArticleLikeService;
+import today.seasoning.seasoning.article.service.CancelArticleLikeService;
 import today.seasoning.seasoning.article.service.DeleteArticleService;
 import today.seasoning.seasoning.article.service.FindArticleService;
 import today.seasoning.seasoning.article.service.FindCollageService;
 import today.seasoning.seasoning.article.service.FindFriendArticlesService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByTermService;
 import today.seasoning.seasoning.article.service.FindMyArticlesByYearService;
+import today.seasoning.seasoning.article.service.RegisterArticleLikeService;
 import today.seasoning.seasoning.article.service.RegisterArticleService;
 import today.seasoning.seasoning.article.service.UpdateArticleService;
 import today.seasoning.seasoning.common.UserPrincipal;
@@ -47,7 +48,8 @@ public class ArticleController {
     private final DeleteArticleService deleteArticleService;
     private final FindMyArticlesByYearService findMyArticlesByYearService;
     private final FindMyArticlesByTermService findMyArticlesByTermService;
-    private final ArticleLikeService articleLikeService;
+    private final RegisterArticleLikeService registerArticleLikeService;
+    private final CancelArticleLikeService cancelArticleLikeService;
     private final FindCollageService findCollageService;
     private final FindFriendArticlesService findFriendArticlesService;
 
@@ -115,7 +117,7 @@ public class ArticleController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable String articleId
     ) {
-        articleLikeService.doLike(principal.getId(), TsidUtil.toLong(articleId));
+        registerArticleLikeService.doService(principal.getId(), TsidUtil.toLong(articleId));
         return ResponseEntity.ok().build();
     }
 
@@ -124,7 +126,7 @@ public class ArticleController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable String articleId
     ) {
-        articleLikeService.cancelLike(principal.getId(), TsidUtil.toLong(articleId));
+        cancelArticleLikeService.doService(principal.getId(), TsidUtil.toLong(articleId));
         return ResponseEntity.ok().build();
     }
 
