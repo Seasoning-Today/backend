@@ -1,4 +1,4 @@
-package today.seasoning.seasoning.article.service;
+package today.seasoning.seasoning.article.integration;
 
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.ExtractableResponse;
@@ -22,7 +22,7 @@ import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 
 @DisplayName("콜라주 조회 통합 테스트")
-class FindCollageServiceTest extends BaseIntegrationTest {
+class FindCollageIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
