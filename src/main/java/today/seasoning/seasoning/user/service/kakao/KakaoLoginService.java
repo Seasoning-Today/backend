@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
 import today.seasoning.seasoning.common.util.JwtUtil;
+import today.seasoning.seasoning.friendship.domain.Friendship;
+import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
@@ -24,6 +26,7 @@ public class KakaoLoginService {
 
     private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
     private final FetchKakaoUserProfile fetchKakaoUserProfile;
+    private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -48,9 +51,18 @@ public class KakaoLoginService {
 
         if (foundUser.isEmpty()) {
             User user = userRepository.save(userProfile.toEntity(LoginType.KAKAO));
+            // 공식 계정 친구 추가
+            addFriendshipOfficialAccount(user);
             return new LoginInfo(user, true);
         }
         return new LoginInfo(foundUser.get(), false);
+    }
+
+    private void addFriendshipOfficialAccount(User user) {
+        String official = System.getenv("OFFICIAL");
+        Optional<User> officialUser = userRepository.findById(Long.parseLong(official));
+        friendshipRepository.save(new Friendship(user, officialUser.get()));
+        friendshipRepository.save(new Friendship(officialUser.get(), user));
     }
 
     @Getter
