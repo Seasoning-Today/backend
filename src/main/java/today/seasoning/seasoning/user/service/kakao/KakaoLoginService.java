@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
 import today.seasoning.seasoning.common.util.JwtUtil;
-import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
