@@ -1,33 +1,35 @@
 package today.seasoning.seasoning.user.service.kakao;
 
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.enums.LoginType;
 import today.seasoning.seasoning.common.token.domain.TokenInfo;
 import today.seasoning.seasoning.common.util.JwtUtil;
-import today.seasoning.seasoning.friendship.domain.Friendship;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
 import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoLoginService {
-
     private static final LoginType KAKAO_LOGIN_TYPE = LoginType.KAKAO;
-
     private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
     private final FetchKakaoUserProfile fetchKakaoUserProfile;
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     public LoginResult handleKakaoLogin(String authorizationCode) {
@@ -51,18 +53,11 @@ public class KakaoLoginService {
 
         if (foundUser.isEmpty()) {
             User user = userRepository.save(userProfile.toEntity(LoginType.KAKAO));
-            // 공식 계정 친구 추가
-            addFriendshipOfficialAccount(user);
+            // 공식 계정 친구 추가 이벤트 발생
+            eventPublisher.publishEvent(new SignedUpEvent(user));
             return new LoginInfo(user, true);
         }
         return new LoginInfo(foundUser.get(), false);
-    }
-
-    private void addFriendshipOfficialAccount(User user) {
-        String official = System.getenv("OFFICIAL");
-        Optional<User> officialUser = userRepository.findById(Long.parseLong(official));
-        friendshipRepository.save(new Friendship(user, officialUser.get()));
-        friendshipRepository.save(new Friendship(officialUser.get(), user));
     }
 
     @Getter
