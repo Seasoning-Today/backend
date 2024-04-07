@@ -25,9 +25,7 @@ public class KakaoLoginService {
     private static final LoginType KAKAO_LOGIN_TYPE = LoginType.KAKAO;
     private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
     private final FetchKakaoUserProfile fetchKakaoUserProfile;
-    private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
-
     private final ApplicationEventPublisher eventPublisher;
 
 
