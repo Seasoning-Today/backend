@@ -1,4 +1,4 @@
-package today.seasoning.seasoning.user.service.kakao;
+package today.seasoning.seasoning.user.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,18 +14,19 @@ import today.seasoning.seasoning.user.domain.UserRepository;
 
 @Component
 @RequiredArgsConstructor
-public class SignedUpEventHandler {
-    @Value("${user.official}")
-    private String official;
+public class SignUpEventHandler {
 
-    private final FriendshipRepository friendshipRepository;
+    @Value("${OFFICIAL_ACCOUNT_USER_ID}")
+    private Long officialAccountUserId;
+
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void addFriendshipOfficialAccount(SignedUpEvent event) {
-        User officialUser = userRepository.findByIdOrElseThrow(Long.parseLong(official));
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void addOfficialAccountFriend(SignUpEvent event) {
         User signUpUser = event.getSignUpUser();
+        User officialUser = userRepository.findByIdOrElseThrow(officialAccountUserId);
         friendshipRepository.save(new Friendship(signUpUser, officialUser));
         friendshipRepository.save(new Friendship(officialUser, signUpUser));
     }
