@@ -1,10 +1,10 @@
 package today.seasoning.seasoning.user.service.kakao;
 
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.seasoning.seasoning.common.enums.LoginType;
@@ -15,15 +15,17 @@ import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
 import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
 
+import java.util.Optional;
+import today.seasoning.seasoning.user.event.SignUpEvent;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoLoginService {
 
-    private static final LoginType KAKAO_LOGIN_TYPE = LoginType.KAKAO;
-
     private final ExchangeKakaoAccessToken exchangeKakaoAccessToken;
     private final FetchKakaoUserProfile fetchKakaoUserProfile;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
 
     @Transactional
@@ -44,10 +46,11 @@ public class KakaoLoginService {
     }
 
     private LoginInfo handleLogin(SocialUserProfileDto userProfile) {
-        Optional<User> foundUser = userRepository.find(userProfile.getEmail(), KAKAO_LOGIN_TYPE);
+        Optional<User> foundUser = userRepository.find(userProfile.getEmail(), LoginType.KAKAO);
 
         if (foundUser.isEmpty()) {
             User user = userRepository.save(userProfile.toEntity(LoginType.KAKAO));
+            eventPublisher.publishEvent(new SignUpEvent(user));
             return new LoginInfo(user, true);
         }
         return new LoginInfo(foundUser.get(), false);
