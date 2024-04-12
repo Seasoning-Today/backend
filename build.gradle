@@ -48,7 +48,11 @@ dependencies {
     // logback-awslogs-appender
     implementation "ca.pjer:logback-awslogs-appender:1.6.0"
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation ('org.springframework.boot:spring-boot-starter-test')
+    {
+        exclude group: 'org.mockito', module :'mockito-core'
+    }
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'io.rest-assured:rest-assured'
 }
