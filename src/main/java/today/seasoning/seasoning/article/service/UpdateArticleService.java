@@ -74,7 +74,7 @@ public class UpdateArticleService {
             if (image == null || image.isEmpty()) {
                 continue;
             }
-            UploadFileInfo fileInfo = s3Service.uploadFile(image);
+            UploadFileInfo fileInfo = s3Service.uploadArticleImage(image);
             articleImageRepository.save(ArticleImage.build(article, fileInfo, sequence++));
         }
     }

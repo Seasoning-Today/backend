@@ -64,7 +64,7 @@ public class RegisterArticleService {
         int sequence = 1;
         for (MultipartFile image : images) {
             if (image != null && !image.isEmpty()) {
-                UploadFileInfo fileInfo = s3Service.uploadFile(image);
+                UploadFileInfo fileInfo = s3Service.uploadArticleImage(image);
                 articleImageRepository.save(ArticleImage.build(article, fileInfo, sequence++));
             }
         }
