@@ -43,7 +43,7 @@ public class UpdateUserProfileService {
         if (image == null || image.isEmpty()) {
             user.removeProfileImage();
         } else {
-            UploadFileInfo uploadFileInfo = s3Service.uploadFile(image);
+            UploadFileInfo uploadFileInfo = s3Service.uploadProfileImage(image);
             user.changeProfileImage(uploadFileInfo);
         }
 
