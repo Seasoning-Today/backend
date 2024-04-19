@@ -2,7 +2,7 @@ package today.seasoning.seasoning.common.aws;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.github.f4b6a3.tsid.TsidCreator;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +37,12 @@ public class S3Service {
 	private String ARTICLE_IMAGE_PREFIX;
 
 	public UploadFileInfo uploadProfileImage(MultipartFile multipartFile) {
-		String key = ORIGINAL_PREFIX + PROFILE_IMAGE_PREFIX + getUIDPrefix() + multipartFile.getOriginalFilename();
+		String key = buildKey(PROFILE_IMAGE_PREFIX);
 		return uploadFile(multipartFile, key, true);
 	}
 
 	public UploadFileInfo uploadArticleImage(MultipartFile multipartFile) {
-		String key = ORIGINAL_PREFIX + ARTICLE_IMAGE_PREFIX + getUIDPrefix() + multipartFile.getOriginalFilename();
+		String key = buildKey(ARTICLE_IMAGE_PREFIX);
 		return uploadFile(multipartFile, key, false);
 	}
 
@@ -72,8 +72,8 @@ public class S3Service {
 		}
 	}
 
-	private String getUIDPrefix() {
-		return TsidCreator.getTsid().encode(62) + "_";
+	private String buildKey(String prefix) {
+		return ORIGINAL_PREFIX + prefix + UUID.randomUUID();
 	}
 
 	private String resolveResizedObjectKey(String originalKey) {
