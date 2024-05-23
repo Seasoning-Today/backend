@@ -13,7 +13,7 @@ logging:
 
 server:
   tomcat:
-    basedir: .
+    basedir: /home/ubuntu/app
     accesslog:
       enabled: true
       pattern: "%h %l %u %t \"%r\" %s %b %D"
