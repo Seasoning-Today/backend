@@ -10,3 +10,11 @@ logging:
     org:
       hibernate:
         SQL: info
+
+server:
+  tomcat:
+    basedir: .
+    accesslog:
+      enabled: true
+      pattern: "%h %l %u %t \"%r\" %s %b %D"
+      max-days: 2
