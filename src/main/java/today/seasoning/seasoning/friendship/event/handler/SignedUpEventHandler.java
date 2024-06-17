@@ -1,7 +1,6 @@
 package today.seasoning.seasoning.friendship.event.handler;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,7 +13,6 @@ import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.event.SignedUpEvent;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SignedUpEventHandler {
@@ -32,6 +30,5 @@ public class SignedUpEventHandler {
         User officialUser = userRepository.findByIdOrElseThrow(officialAccountUserId);
         friendshipRepository.save(new Friendship(signedUpUser, officialUser));
         friendshipRepository.save(new Friendship(officialUser, signedUpUser));
-        log.info("New User Signed Up {}", signedUpUser.getId());
     }
 }

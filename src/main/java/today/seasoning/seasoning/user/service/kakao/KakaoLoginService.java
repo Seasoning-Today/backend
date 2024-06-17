@@ -1,9 +1,9 @@
 package today.seasoning.seasoning.user.service.kakao;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +14,8 @@ import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
 import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
-
-import java.util.Optional;
 import today.seasoning.seasoning.user.event.SignedUpEvent;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoLoginService {
