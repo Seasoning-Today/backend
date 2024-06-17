@@ -16,7 +16,7 @@ import today.seasoning.seasoning.user.dto.LoginResult;
 import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
 
 import java.util.Optional;
-import today.seasoning.seasoning.user.event.SignUpEvent;
+import today.seasoning.seasoning.user.event.SignedUpEvent;
 
 @Slf4j
 @Service
@@ -50,7 +50,7 @@ public class KakaoLoginService {
 
         if (foundUser.isEmpty()) {
             User user = userRepository.save(userProfile.toEntity(LoginType.KAKAO));
-            eventPublisher.publishEvent(new SignUpEvent(user));
+            eventPublisher.publishEvent(new SignedUpEvent(user));
             return new LoginInfo(user, true);
         }
         return new LoginInfo(foundUser.get(), false);

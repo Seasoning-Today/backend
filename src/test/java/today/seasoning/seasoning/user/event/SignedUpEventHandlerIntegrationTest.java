@@ -18,7 +18,7 @@ import today.seasoning.seasoning.user.domain.UserRepository;
 
 @DisplayName("회원가입 이벤트 핸들러 통합 테스트")
 @Sql(scripts = "classpath:data/insert_official_account_user.sql")
-class SignUpEventHandlerIntegrationTest extends BaseIntegrationTest {
+class SignedUpEventHandlerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -49,10 +49,10 @@ class SignUpEventHandlerIntegrationTest extends BaseIntegrationTest {
     @DisplayName("회원가입 이벤트 발생 시, 공식 계정을 신규 회원의 친구로 등록한다")
     void test1() {
         //given
-        SignUpEvent signUpEvent = new SignUpEvent(user);
+        SignedUpEvent signedUpEvent = new SignedUpEvent(user);
 
         //when
-        transactionTemplate.executeWithoutResult(status -> applicationEventPublisher.publishEvent(signUpEvent));
+        transactionTemplate.executeWithoutResult(status -> applicationEventPublisher.publishEvent(signedUpEvent));
 
         //then
         softAssertions.assertThat(friendshipRepository.count()).isEqualTo(2);
@@ -64,11 +64,11 @@ class SignUpEventHandlerIntegrationTest extends BaseIntegrationTest {
     @DisplayName("회원가입이 실패한 경우, 발행된 회원가입 이벤트는 처리되지 않는다")
     void test2() {
         //given
-        SignUpEvent signUpEvent = new SignUpEvent(user);
+        SignedUpEvent signedUpEvent = new SignedUpEvent(user);
 
         //when
         transactionTemplate.executeWithoutResult(transactionStatus -> {
-            applicationEventPublisher.publishEvent(signUpEvent);
+            applicationEventPublisher.publishEvent(signedUpEvent);
             transactionStatus.setRollbackOnly();
         });
 

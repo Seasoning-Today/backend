@@ -26,7 +26,7 @@ import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
 import today.seasoning.seasoning.user.dto.LoginResult;
 import today.seasoning.seasoning.user.dto.SocialUserProfileDto;
-import today.seasoning.seasoning.user.event.SignUpEvent;
+import today.seasoning.seasoning.user.event.SignedUpEvent;
 
 @DisplayName("카카오 로그인 단위 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -82,11 +82,11 @@ class KakaoLoginServiceTest {
         assertThat(savedUser.getProfileImageUrl()).isEqualTo(newUserProfile.getProfileImageUrl());
 
         //then 2: 등록된 회원에 대한 회원가입 이벤트가 발행되어야 한다
-        ArgumentCaptor<SignUpEvent> publishedEventCaptor = ArgumentCaptor.forClass(SignUpEvent.class);
+        ArgumentCaptor<SignedUpEvent> publishedEventCaptor = ArgumentCaptor.forClass(SignedUpEvent.class);
         verify(eventPublisher).publishEvent(publishedEventCaptor.capture());
-        SignUpEvent publishedEvent = publishedEventCaptor.getValue();
+        SignedUpEvent publishedEvent = publishedEventCaptor.getValue();
 
-        assertThat(publishedEvent.getSignUpUser()).isEqualTo(newUser);
+        assertThat(publishedEvent.getSignedUpUser()).isEqualTo(newUser);
 
         //then 3: LoginResult.firstLogin의 값은 true이어야 한다
         assertThat(loginResult.isFirstLogin()).isTrue();
@@ -110,7 +110,7 @@ class KakaoLoginServiceTest {
         jwtUtil.verify(() -> JwtUtil.createToken(user.getId()));
 
         //then 2: 회원가입 이벤트는 발행되지 않아야 한다
-        verify(eventPublisher, never()).publishEvent(any(SignUpEvent.class));
+        verify(eventPublisher, never()).publishEvent(any(SignedUpEvent.class));
 
         //then 3: LoginResult.firstLogin의 값은 false이어야 한다
         assertThat(loginResult.isFirstLogin()).isFalse();

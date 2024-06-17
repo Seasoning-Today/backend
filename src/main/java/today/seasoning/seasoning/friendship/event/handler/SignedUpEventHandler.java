@@ -1,4 +1,4 @@
-package today.seasoning.seasoning.user.event;
+package today.seasoning.seasoning.friendship.event.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +12,12 @@ import today.seasoning.seasoning.friendship.domain.Friendship;
 import today.seasoning.seasoning.friendship.domain.FriendshipRepository;
 import today.seasoning.seasoning.user.domain.User;
 import today.seasoning.seasoning.user.domain.UserRepository;
+import today.seasoning.seasoning.user.event.SignedUpEvent;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SignUpEventHandler {
+public class SignedUpEventHandler {
 
     @Value("${OFFICIAL_ACCOUNT_USER_ID}")
     private Long officialAccountUserId;
@@ -26,11 +27,11 @@ public class SignUpEventHandler {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void addOfficialAccountFriend(SignUpEvent event) {
-        User signUpUser = event.getSignUpUser();
+    public void addOfficialAccountFriend(SignedUpEvent event) {
+        User signedUpUser = event.getSignedUpUser();
         User officialUser = userRepository.findByIdOrElseThrow(officialAccountUserId);
-        friendshipRepository.save(new Friendship(signUpUser, officialUser));
-        friendshipRepository.save(new Friendship(officialUser, signUpUser));
-        log.info("Sign Up Event - User {}", signUpUser.getId());
+        friendshipRepository.save(new Friendship(signedUpUser, officialUser));
+        friendshipRepository.save(new Friendship(officialUser, signedUpUser));
+        log.info("New User Signed Up {}", signedUpUser.getId());
     }
 }
