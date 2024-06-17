@@ -6,8 +6,8 @@ import today.seasoning.seasoning.user.domain.User;
 
 @Getter
 @RequiredArgsConstructor
-public class SignUpEvent {
+public class SignedUpEvent {
 
-    private final User signUpUser;
+    private final User signedUpUser;
 
 }
